@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio formativo: harness agéntico mínimo sobre Pi",
+  "description": "Laboratorio incremental: harness agéntico sobre Pi (print y JSONL)",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },

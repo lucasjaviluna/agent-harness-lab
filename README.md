@@ -1,110 +1,90 @@
-# Agent Harness Lab · Módulo 1 / Lección 1
+# Agent Harness Lab — v0.2.0
 
-**Título:** Fundamentos de Pi y construcción del primer Agent Harness  
-**Nivel:** Principiante · **Complejidad:** Baja  
-**Estado:** Laboratorio inicial funcional, pensado para aprender (no listo para producción).
+**Curso:** Pi.dev de cero a Agent Harness profesional  
+**Módulo 1 — Fundamentos de Pi**  
+**Lección 2 — Modos de ejecución de Pi y contratos de integración**  
+**Nivel:** Principiante–Intermedio · **Complejidad:** Media
 
-Este proyecto es **nuevo e independiente** de cualquier implementación previa de `pi-harness`.
+Este es un proyecto **independiente de pi-harness** que evoluciona por lecciones. No contiene todavía funcionalidades de producción como sandbox, approvals o sesiones RPC administradas.
 
 ## Requisitos
 
-- Node.js **22.19 o superior** (requisito de Pi instalado por npm).
-- npm y acceso a los paquetes de desarrollo para compilar TypeScript.
-- Pi instalado globalmente para ejecuciones reales; un proveedor/modelo autenticado para prompts reales.
+- Node.js 22.19 o superior para Pi instalado por npm.
+- npm y TypeScript (instalado desde `devDependencies`).
+- Pi: `npm install -g --ignore-scripts @earendil-works/pi-coding-agent`.
+- Proveedor/modelo configurado en Pi para ejecuciones reales (los tests no lo necesitan).
 
-## Instalación
+## Primera ejecución
 
 ```bash
 npm install
-npm run build
 npm test
-```
-
-Instalar Pi por separado:
-
-```bash
-npm install -g --ignore-scripts @earendil-works/pi-coding-agent
-pi --version
-pi
-# Dentro de Pi: /login y /model
-```
-
-`npm test` utiliza un ejecutable falso y **no requiere credenciales ni consume tokens**. Para probar con el modelo real, es necesario autenticar Pi localmente.
-
-## Utilización
-
-```bash
+npm run typecheck
 node dist/cli.js --help
-node dist/cli.js config
 node dist/cli.js doctor
-node dist/cli.js run "Describe la estructura de este repositorio" --dry-run
-node dist/cli.js run "Describe la estructura de este repositorio"
+node dist/cli.js config
 ```
 
-También es posible enlazar el binario local:
+`doctor` sólo comprueba versión del binario; **no confirma autenticación**.
+
+## Ejecución de prompts
 
 ```bash
-npm link
-agent-lab --help
-agent-lab run "Revisa este proyecto"
+# Print: salida final como texto, igual que Lección 1
+node dist/cli.js run "Explica este proyecto" --dry-run
+node dist/cli.js run "Explica este proyecto"
+
+# JSON: resumen analítico
+node dist/cli.js run "Explica este proyecto" --mode json
+
+# JSON: eventos sin transformaciones (stdout JSONL)
+node dist/cli.js run "Explica este proyecto" --mode json --view events > events.jsonl
+
+# Ejecutar desde archivo Markdown
+node dist/cli.js run-file examples/prompts/architecture.md --mode json
 ```
 
-Al terminar el ejercicio práctico, tendrás `run-file`:
+Puedes ejecutar `npm link` para disponer del ejecutable `agent-lab`. Ejecuta `pi` directamente si necesitas configurar `/login` o `/model`.
 
-```bash
-agent-lab run-file examples/prompts/architecture.md
-```
-
-## Configuración mínima
-
-El archivo `harness.config.json` es exclusivo del laboratorio. No sustituye ni modifica la configuración personal de Pi.
-
-```json
-{
-  "pi": {
-    "executable": "pi",
-    "tools": ["read", "grep", "find", "ls"],
-    "noSession": true,
-    "disableMcp": true,
-    "disableExtensions": true
-  },
-  "execution": { "timeoutMs": 120000 }
-}
-```
-
-Puedes incorporar opcionalmente `"model": "proveedor/modelo"` y `"provider": "proveedor"` dentro de `pi`; en Pi actual, `--provider` requiere `--model`.
-
-Para cambiar el archivo de configuración utiliza `--config otro.json`. La configuración predeterminada no ejecuta shell ni edita archivos a través de las herramientas **declaradas al modelo**, pero **no constituye un sandbox**: Pi, los módulos en Node y recursos externos mantienen sus propios permisos.
-
-**No guardes claves API en `harness.config.json`.** Pi usa su gestión de autenticación o variables de entorno. **Trabajá únicamente en directorios de confianza:** el archivo local puede seleccionar `pi.executable` y nuestro CLI lo invoca como proceso; no abras ni ejecutes configuraciones de repositorios desconocidos sin revisarlas primero.
+`--mode print` es el valor predeterminado. `--view summary|events` sólo existe para `--mode json`. RPC y SDK se estudian en `LECCION_02.md`, pero **no se incluyen en el binario actual**.
 
 ## Estructura
 
+```text
+src/cli.ts         Parsing de comandos y selección del modo
+src/config.ts      Configuración de Lección 1, sin modificaciones
+src/runtime.ts     Invocación de Pi como subprocess, print/JSON
+src/json-events.ts Interpretación mínima de registros y resultado
+examples/          Prompts de muestra y JSONL sintético
+tests/             Pruebas de CLI con ejecutable Pi simulado
+solutions/         Soluciones de ejercicios, no aplicadas al core
+LECCION_01.md      Fundamentos y bootstrap
+LECCION_02.md      Modos de ejecución, implementación y práctica
+CHANGELOG.md       Evolución de versiones
 ```
-src/cli.ts       CLI y comandos mínimos
-src/config.ts    Lectura, valores predeterminados y validación
-src/runtime.ts   Argumentos y proceso externo de Pi
-tests/           Tests de integración con Pi simulado
-examples/        Prompts y comparaciones para practicar
-solutions/       Solución completa del ejercicio run-file
-AGENTS.md        Instrucciones del proyecto para agentes
-```
 
-## Limitaciones explícitas de esta versión
+## Seguridad y privacidad
 
-- Solo invocaciones de una sola ejecución en `--print`; no hay streaming estructurado.
-- No se gestiona el ciclo de vida de sesiones persistentes.
-- No hay controles de permisos obligatorios ni aislamiento de procesos.
-- El proceso hijo usa `shell: false`. En Windows nativo, los wrappers `.cmd` de npm pueden requerir un adaptador específico; utilizar WSL para este laboratorio o adaptar `executable` a un launcher seguro antes de ejecutar en Windows.
-- La detección de versión de `doctor` **no verifica autenticación**.
-- Si el hijo lanza procesos propios, cancelar el hijo no garantiza cancelar todo el árbol de procesos.
+- Las listas de herramientas expuestas al modelo no son un sandbox.
+- `--no-mcp` y `--no-extensions` se activan por defecto en el ejemplo, pero **no constituyen una política universal de seguridad**.
+- Un proyecto no confiable puede introducir instrucciones, configuraciones o recursos que requieran revisión.
+- `harness.config.json` permite definir el ejecutable de Pi: verifica su valor antes de ejecutar repositorios de terceros.
+- La salida JSONL puede revelar instrucciones, rutas, argumentos de herramientas o información privada. No subas archivos de eventos sin inspeccionarlos.
+- No guardes claves en `harness.config.json`, prompts, fixtures ni logs.
+- Los launchers `.cmd` de Windows pueden requerir tratamiento adicional; en esta etapa utiliza WSL o adapta el ejecutable de forma segura.
 
-Estas limitaciones son decisiones didácticas deliberadas: evolucionaremos después hacia SDK/RPC, políticas, permisos, sesiones y distribución.
+## Cómo evolucionar desde la Lección 1
 
-## Documentación oficial
+Usa el **ZIP incremental** desde la raíz de tu repositorio. Contiene sólo los archivos creados/modificados. Si cambiaste archivos de la Lección 1, compara los cambios antes de copiarlos. El **ZIP completo** sirve como snapshot alternativo.
 
-- https://pi.dev/docs/latest/quickstart
+El ejercicio `run-file` de L1 fue incorporado a v0.2.0. Si ya lo implementaste, compara `src/cli.ts` para no perder cambios propios.
+
+## Referencias
+
 - https://pi.dev/docs/latest/cli
 - https://pi.dev/docs/latest/cli-integration
 - https://pi.dev/docs/latest/mcp
 - https://pi.dev/docs/latest/sessions
+- https://pi.dev/docs/latest/json
+- https://pi.dev/docs/latest/rpc
+- https://pi.dev/docs/latest/sdk

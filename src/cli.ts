@@ -1,51 +1,92 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadConfig } from "./config.js";
-import { buildPiArgs, getPiVersion, runPi } from "./runtime.js";
+import { buildPiArgs, getPiVersion, runPi, runPiJson } from "./runtime.js";
+import type { JsonView, PiMode } from "./runtime.js";
 
-const HELP = `Agent Harness Lab v0.1.0 — Módulo 1 / Lección 1
+const HELP = `Agent Harness Lab v0.2.0 — Módulo 1 / Lección 2
 
 Uso:
   agent-lab doctor [--config archivo.json]
   agent-lab config [--config archivo.json]
-  agent-lab run "tu prompt" [--dry-run] [--config archivo.json]
-  agent-lab run-file "ruta/al/archivo_prompt" [--dry-run] [--config archivo.json]
+  agent-lab run "prompt" [--mode print|json] [--view summary|events] [--dry-run]
+  agent-lab run-file archivo.md [--mode print|json] [--view summary|events] [--dry-run]
   agent-lab --help
 
-Comandos:
-  doctor     Comprueba si Pi está disponible y muestra su versión.
-  config     Muestra la configuración efectiva (sin credenciales).
-  run        Ejecuta una tarea de una sola invocación mediante Pi.
-  run-file   Ejecuta una tarea pasándole un prompt por archivo.
+Flags comunes:
+  --config archivo.json  Configuración del laboratorio
+  --mode print|json      print (por defecto): texto final; json: eventos estructurados
+  --view summary|events  Sólo con --mode json; summary (por defecto) o JSONL original
+  --dry-run              Mostrar argumentos preparados sin iniciar Pi
 
-Por defecto: herramientas de consulta, sin sesiones persistidas, sin MCP y sin extensiones.
-NOTA: limitar tools NO sustituye el aislamiento del sistema operativo.`;
+La salida de --view events contiene sólo JSONL en stdout; los diagnósticos van a stderr.
+Limitación: seleccionar tools NO es un mecanismo de aislamiento del sistema operativo.`;
 
-function parseArgs(argv: string[]): {
+interface ParsedArgs {
   command: string;
   rest: string[];
   configFile?: string;
-} {
+  mode: PiMode;
+  view?: JsonView;
+  dryRun: boolean;
+}
+
+function parseArgs(argv: string[]): ParsedArgs {
   const rest: string[] = [];
   let configFile: string | undefined;
+  let mode: PiMode = "print";
+  let view: JsonView | undefined;
+  let dryRun = false;
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === "--config") {
-      if (!argv[i + 1]) throw new Error("--config requiere una ruta");
-      configFile = argv[++i];
-    } else rest.push(argv[i]);
+    const token = argv[i];
+    if (token === "--config" || token === "--mode" || token === "--view") {
+      const value = argv[++i];
+      if (!value) throw new Error(`${token} requiere un valor`);
+      if (token === "--config") configFile = value;
+      else if (token === "--mode") {
+        if (value !== "print" && value !== "json")
+          throw new Error("--mode debe ser print o json");
+        mode = value;
+      } else {
+        if (value !== "summary" && value !== "events")
+          throw new Error("--view debe ser summary o events");
+        view = value;
+      }
+    } else if (token === "--dry-run") dryRun = true;
+    else rest.push(token);
   }
-  return { command: rest.shift() ?? "--help", rest, configFile };
+  return {
+    command: rest.shift() ?? "--help",
+    rest,
+    configFile,
+    mode,
+    view,
+    dryRun,
+  };
 }
 
 async function main(argv: string[]): Promise<number> {
-  const { command, rest, configFile } = parseArgs(argv);
-  if (command === "--help" || command === "help" || command === "-h") {
+  const parsed = parseArgs(argv);
+  const { command, rest, configFile, mode, view, dryRun } = parsed;
+  if (["--help", "-h", "help"].includes(command)) {
     console.log(HELP);
     return 0;
   }
-  if (!["run", "config", "doctor", "run-file"].includes(command))
+  if (!["run", "run-file", "config", "doctor"].includes(command)) {
     throw new Error(`Comando desconocido: ${command}. Usa --help.`);
+  }
+  if (view && mode !== "json")
+    throw new Error("--view sólo se permite con --mode json");
+  if (
+    !["run", "run-file"].includes(command) &&
+    (mode !== "print" || view || dryRun)
+  ) {
+    throw new Error(
+      `Las opciones --mode, --view y --dry-run sólo aplican a run y run-file`,
+    );
+  }
+
   const { config, path } = loadConfig(process.cwd(), configFile);
   if (command === "config") {
     if (rest.length) throw new Error("config no acepta otros argumentos");
@@ -56,37 +97,29 @@ async function main(argv: string[]): Promise<number> {
     if (rest.length) throw new Error("doctor no acepta otros argumentos");
     const version = await getPiVersion(config, process.cwd());
     console.log(`Pi encontrado: ${version}`);
-    console.log(
-      "Autenticación y acceso al modelo deben verificarse desde Pi (/login y /model).",
-    );
+    console.log("La autenticación debe verificarse desde Pi.");
     return 0;
   }
-  const dryRun = rest.includes("--dry-run");
-  let prompt = rest
-    .filter((token) => token !== "--dry-run")
-    .join(" ")
-    .trim();
-
+  let prompt: string;
   if (command === "run-file") {
-    if (rest.length < 1)
-      throw new Error("run-file requiere un archivo de prompt");
+    if (rest.length !== 1)
+      throw new Error("run-file requiere una sola ruta de archivo");
+    try {
+      prompt = readFileSync(resolve(process.cwd(), rest[0]), "utf8").trim();
+    } catch (error) {
+      throw new Error(
+        `No se pudo leer el archivo: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  } else prompt = rest.join(" ").trim();
+  if (!prompt) throw new Error(`${command} requiere un prompt no vacío`);
 
-    if (!existsSync(prompt))
-      throw new Error(`Archivo de prompt no encontrado: ${prompt}`);
-
-    prompt = readFileSync(resolve(prompt), "utf8").trim();
-  }
-
-  if (!prompt)
-    throw new Error(
-      'run requiere un prompt. Ejemplo: agent-lab run "Describe este repositorio"',
-    );
   if (dryRun) {
     console.log(
       JSON.stringify(
         {
           command: config.pi.executable,
-          args: buildPiArgs(prompt, config),
+          args: buildPiArgs(prompt, config, mode),
           cwd: process.cwd(),
         },
         null,
@@ -95,7 +128,9 @@ async function main(argv: string[]): Promise<number> {
     );
     return 0;
   }
-  return await runPi(prompt, config, process.cwd());
+  return mode === "print"
+    ? runPi(prompt, config, process.cwd())
+    : runPiJson(prompt, config, process.cwd(), view ?? "summary");
 }
 
 main(process.argv.slice(2))
