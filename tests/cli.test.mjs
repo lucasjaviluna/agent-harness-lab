@@ -135,7 +135,13 @@ test('Windows ejecuta el lanzador administrado de Pi para doctor y run', { skip:
     writeFileSync(join(w.dir, 'pi.cmd'), '@exit /b 99\r\n');
     writeFileSync(join(w.dir, 'pi-launcher.js'), `
 if (process.argv.includes('--version')) console.log('pi-win 1.0');
-else { console.log(JSON.stringify(process.argv.slice(2))); process.exit(7); }
+else if (process.argv.includes('json')) {
+  console.log(JSON.stringify({type:'session',version:3,id:'test',cwd:process.cwd()}));
+  console.log(JSON.stringify({type:'tool_execution_start',toolName:'read',toolCallId:'call-1',args:{path:'secret'}}));
+  console.log(JSON.stringify({type:'tool_execution_end',toolName:'read',toolCallId:'call-1',isError:false}));
+  console.log(JSON.stringify({type:'message_end',message:{role:'assistant',stopReason:'stop',content:[{type:'text',text:'listo'}]}}));
+  console.log(JSON.stringify({type:'agent_settled',aborted:false}));
+} else { console.log(JSON.stringify(process.argv.slice(2))); process.exit(7); }
 `);
     writeFileSync(join(w.dir, 'harness.config.json'), JSON.stringify({ pi: { executable: 'pi' } }));
     const env = { PATH: w.dir + ';' + process.env.PATH };
@@ -146,5 +152,14 @@ else { console.log(JSON.stringify(process.argv.slice(2))); process.exit(7); }
     const run = invoke(w.dir, ['run', prompt], env);
     assert.equal(run.status, 7, run.stderr);
     assert.equal(JSON.parse(run.stdout.trim()).at(-1), prompt);
+    const json = invoke(w.dir, ['run', prompt, '--mode', 'json'], env);
+    assert.equal(json.status, 0, json.stderr);
+    assert.equal(JSON.parse(json.stdout).lastAssistantText, 'listo');
+    const tools = invoke(w.dir, ['run', prompt, '--mode', 'json', '--view', 'tools'], env);
+    assert.equal(tools.status, 0, tools.stderr);
+    assert.deepEqual(tools.stdout.trim().split('\n').map(line => JSON.parse(line)), [
+      { type: 'tool_execution_start', toolName: 'read' },
+      { type: 'tool_execution_end', toolName: 'read', isError: false },
+    ]);
   } finally { w.cleanup(); }
 });
