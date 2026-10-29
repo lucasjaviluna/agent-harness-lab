@@ -2,26 +2,37 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadConfig } from "./config.js";
-import { buildPiArgs, getPiVersion, runPi, runPiJson } from "./runtime.js";
+import {
+  parseThinkingLevel,
+  resolveModelSelection,
+} from "./model-selection.js";
+import type { ModelOverrides } from "./model-selection.js";
+import {
+  buildPiArgs,
+  getPiVersion,
+  listPiModels,
+  runPi,
+  runPiJson,
+} from "./runtime.js";
 import type { JsonView, PiMode } from "./runtime.js";
 
-const HELP = `Agent Harness Lab v0.2.0 — Módulo 1 / Lección 2
+const HELP = `Agent Harness Lab v0.3.0 — Módulo 1 / Lección 3
 
 Uso:
   agent-lab doctor [--config archivo.json]
   agent-lab config [--config archivo.json]
-  agent-lab run "prompt" [--mode print|json] [--view summary|events] [--dry-run]
-  agent-lab run-file archivo.md [--mode print|json] [--view summary|events] [--dry-run]
+  agent-lab profiles [--config archivo.json] [show thinking-level]
+  agent-lab models [filtro] [--config archivo.json]
+  agent-lab run "prompt" [--mode print|json] [--view summary|events|tools]
+            [--profile nombre] [--model id] [--provider id] [--thinking nivel] [--dry-run]
+  agent-lab run-file archivo.md [opciones de run]
   agent-lab --help
 
-Flags comunes:
-  --config archivo.json  Configuración del laboratorio
-  --mode print|json      print (por defecto): texto final; json: eventos estructurados
-  --view summary|events  Sólo con --mode json; summary (por defecto) o JSONL original
-  --dry-run              Mostrar argumentos preparados sin iniciar Pi
-
-La salida de --view events contiene sólo JSONL en stdout; los diagnósticos van a stderr.
-Limitación: seleccionar tools NO es un mecanismo de aislamiento del sistema operativo.`;
+Niveles thinking: off, minimal, low, medium, high, xhigh, max.
+Precedencia: pi config < defaultProfile < --profile < flags de run.
+La selección de modelo no valida credenciales; Pi resuelve su catálogo.
+--view sólo es válido con --mode json. --dry-run no inicia Pi.
+ADVERTENCIA: herramientas y flags NO equivalen a un sandbox.`;
 
 interface ParsedArgs {
   command: string;
@@ -30,6 +41,8 @@ interface ParsedArgs {
   mode: PiMode;
   view?: JsonView;
   dryRun: boolean;
+  overrides: ModelOverrides;
+  runOnlyFlags: string[];
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -38,23 +51,47 @@ function parseArgs(argv: string[]): ParsedArgs {
   let mode: PiMode = "print";
   let view: JsonView | undefined;
   let dryRun = false;
+  const overrides: ModelOverrides = {};
+  const runOnlyFlags: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i];
-    if (token === "--config" || token === "--mode" || token === "--view") {
+    if (
+      [
+        "--config",
+        "--mode",
+        "--view",
+        "--profile",
+        "--model",
+        "--provider",
+        "--thinking",
+      ].includes(token)
+    ) {
       const value = argv[++i];
-      if (!value) throw new Error(`${token} requiere un valor`);
+      if (!value || value.startsWith("--"))
+        throw new Error(`${token} requiere un valor`);
       if (token === "--config") configFile = value;
       else if (token === "--mode") {
         if (value !== "print" && value !== "json")
           throw new Error("--mode debe ser print o json");
         mode = value;
-      } else {
-        if (value !== "summary" && value !== "events")
-          throw new Error("--view debe ser summary o events");
+        runOnlyFlags.push(token);
+      } else if (token === "--view") {
+        if (value !== "summary" && value !== "events" && value !== "tools")
+          throw new Error("--view debe ser summary, events o tools");
         view = value;
+        runOnlyFlags.push(token);
+      } else {
+        runOnlyFlags.push(token);
+        if (token === "--profile") overrides.profile = value;
+        if (token === "--model") overrides.model = value;
+        if (token === "--provider") overrides.provider = value;
+        if (token === "--thinking")
+          overrides.thinking = parseThinkingLevel(value, "--thinking");
       }
-    } else if (token === "--dry-run") dryRun = true;
-    else rest.push(token);
+    } else if (token === "--dry-run") {
+      dryRun = true;
+      runOnlyFlags.push(token);
+    } else rest.push(token);
   }
   return {
     command: rest.shift() ?? "--help",
@@ -63,27 +100,38 @@ function parseArgs(argv: string[]): ParsedArgs {
     mode,
     view,
     dryRun,
+    overrides,
+    runOnlyFlags,
   };
 }
 
 async function main(argv: string[]): Promise<number> {
-  const parsed = parseArgs(argv);
-  const { command, rest, configFile, mode, view, dryRun } = parsed;
+  const {
+    command,
+    rest,
+    configFile,
+    mode,
+    view,
+    dryRun,
+    overrides,
+    runOnlyFlags,
+  } = parseArgs(argv);
   if (["--help", "-h", "help"].includes(command)) {
     console.log(HELP);
     return 0;
   }
-  if (!["run", "run-file", "config", "doctor"].includes(command)) {
+  if (
+    !["run", "run-file", "config", "doctor", "models", "profiles"].includes(
+      command,
+    )
+  ) {
     throw new Error(`Comando desconocido: ${command}. Usa --help.`);
   }
   if (view && mode !== "json")
     throw new Error("--view sólo se permite con --mode json");
-  if (
-    !["run", "run-file"].includes(command) &&
-    (mode !== "print" || view || dryRun)
-  ) {
+  if (!["run", "run-file"].includes(command) && runOnlyFlags.length) {
     throw new Error(
-      `Las opciones --mode, --view y --dry-run sólo aplican a run y run-file`,
+      `Las opciones ${runOnlyFlags.join(", ")} sólo aplican a run y run-file`,
     );
   }
 
@@ -93,6 +141,25 @@ async function main(argv: string[]): Promise<number> {
     console.log(JSON.stringify({ path, config }, null, 2));
     return 0;
   }
+  if (command === "profiles") {
+    if (rest.length) throw new Error("profiles no acepta argumentos");
+
+    console.log(
+      JSON.stringify(
+        {
+          defaultProfile: config.defaultProfile ?? null,
+          profiles: config.modelProfiles,
+        },
+        null,
+        2,
+      ),
+    );
+    return 0;
+  }
+  if (command === "models") {
+    if (rest.length > 1) throw new Error("models acepta como máximo un filtro");
+    return listPiModels(config, process.cwd(), rest[0]);
+  }
   if (command === "doctor") {
     if (rest.length) throw new Error("doctor no acepta otros argumentos");
     const version = await getPiVersion(config, process.cwd());
@@ -100,6 +167,8 @@ async function main(argv: string[]): Promise<number> {
     console.log("La autenticación debe verificarse desde Pi.");
     return 0;
   }
+
+  const selection = resolveModelSelection(config, overrides);
   let prompt: string;
   if (command === "run-file") {
     if (rest.length !== 1)
@@ -119,7 +188,7 @@ async function main(argv: string[]): Promise<number> {
       JSON.stringify(
         {
           command: config.pi.executable,
-          args: buildPiArgs(prompt, config, mode),
+          args: buildPiArgs(prompt, config, mode, selection),
           cwd: process.cwd(),
         },
         null,
@@ -129,8 +198,8 @@ async function main(argv: string[]): Promise<number> {
     return 0;
   }
   return mode === "print"
-    ? runPi(prompt, config, process.cwd())
-    : runPiJson(prompt, config, process.cwd(), view ?? "summary");
+    ? runPi(prompt, config, process.cwd(), selection)
+    : runPiJson(prompt, config, process.cwd(), view ?? "summary", selection);
 }
 
 main(process.argv.slice(2))

@@ -135,6 +135,7 @@ test('Windows ejecuta el lanzador administrado de Pi para doctor y run', { skip:
     writeFileSync(join(w.dir, 'pi.cmd'), '@exit /b 99\r\n');
     writeFileSync(join(w.dir, 'pi-launcher.js'), `
 if (process.argv.includes('--version')) console.log('pi-win 1.0');
+else if (process.argv.includes('--list-models')) console.log(JSON.stringify(process.argv.slice(2)));
 else if (process.argv.includes('json')) {
   console.log(JSON.stringify({type:'session',version:3,id:'test',cwd:process.cwd()}));
   console.log(JSON.stringify({type:'tool_execution_start',toolName:'read',toolCallId:'call-1',args:{path:'secret'}}));
@@ -148,6 +149,9 @@ else if (process.argv.includes('json')) {
     const doctor = invoke(w.dir, ['doctor'], env);
     assert.equal(doctor.status, 0, doctor.stderr);
     assert.match(doctor.stdout, /pi-win 1\.0/);
+    const models = invoke(w.dir, ['models', 'openai'], env);
+    assert.equal(models.status, 0, models.stderr);
+    assert.deepEqual(JSON.parse(models.stdout.trim()), ['--list-models', 'openai']);
     const prompt = 'Hola & echo NO_EJECUTAR';
     const run = invoke(w.dir, ['run', prompt], env);
     assert.equal(run.status, 7, run.stderr);

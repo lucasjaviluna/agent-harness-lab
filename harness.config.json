@@ -1,7 +1,12 @@
 {
   "pi": {
     "executable": "pi",
-    "tools": ["read", "grep", "find", "ls"],
+    "tools": [
+      "read",
+      "grep",
+      "find",
+      "ls"
+    ],
     "noSession": true,
     "disableMcp": true,
     "disableExtensions": true

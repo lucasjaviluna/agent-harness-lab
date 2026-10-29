@@ -1,90 +1,75 @@
-# Agent Harness Lab — v0.2.0
+# Agent Harness Lab — v0.3.0
 
-**Curso:** Pi.dev de cero a Agent Harness profesional  
-**Módulo 1 — Fundamentos de Pi**  
-**Lección 2 — Modos de ejecución de Pi y contratos de integración**  
+Curso: **Pi.dev: de cero a construir un Agent Harness profesional**
+**Módulo 1 — Fundamentos de Pi · Lección 3 — Modelos, proveedores y perfiles**
 **Nivel:** Principiante–Intermedio · **Complejidad:** Media
 
-Este es un proyecto **independiente de pi-harness** que evoluciona por lecciones. No contiene todavía funcionalidades de producción como sandbox, approvals o sesiones RPC administradas.
+Proyecto conductor **independiente** de `pi-harness`. Evoluciona sobre v0.2.0 sin reconstruir Agent Loop, modelos ni catálogo de proveedores. En esta etapa el harness invoca el CLI de Pi como proceso hijo.
 
-## Requisitos
+## Requisitos y primera ejecución
 
-- Node.js 22.19 o superior para Pi instalado por npm.
-- npm y TypeScript (instalado desde `devDependencies`).
-- Pi: `npm install -g --ignore-scripts @earendil-works/pi-coding-agent`.
-- Proveedor/modelo configurado en Pi para ejecuciones reales (los tests no lo necesitan).
-
-## Primera ejecución
+- Node.js **22.19+** para la instalación actual de Pi.
+- Pi instalado: `npm install -g --ignore-scripts @earendil-works/pi-coding-agent`
+- Autenticación del proveedor desde `pi` → `/login`, o credencial del proveedor configurada por los mecanismos de Pi.
 
 ```bash
 npm install
 npm test
 npm run typecheck
-node dist/cli.js --help
 node dist/cli.js doctor
 node dist/cli.js config
+node dist/cli.js profiles
+node dist/cli.js models
+node dist/cli.js models claude
+node dist/cli.js run "Analiza la arquitectura" --dry-run
 ```
 
-`doctor` sólo comprueba versión del binario; **no confirma autenticación**.
+Para usar el ejecutable sin prefijo: `npm link`, luego `agent-lab ...`.
 
-## Ejecución de prompts
+## Modelos y perfiles
+
+En ausencia de selección de modelo en nuestro config, **Pi decide el modelo** según su configuración propia. Se evita fijar un proveedor que no esté disponible para el usuario.
 
 ```bash
-# Print: salida final como texto, igual que Lección 1
-node dist/cli.js run "Explica este proyecto" --dry-run
-node dist/cli.js run "Explica este proyecto"
-
-# JSON: resumen analítico
-node dist/cli.js run "Explica este proyecto" --mode json
-
-# JSON: eventos sin transformaciones (stdout JSONL)
-node dist/cli.js run "Explica este proyecto" --mode json --view events > events.jsonl
-
-# Ejecutar desde archivo Markdown
-node dist/cli.js run-file examples/prompts/architecture.md --mode json
+node dist/cli.js run "Hola" --model openai/gpt-4o --thinking low --dry-run
+node dist/cli.js run-file examples/prompts/model-evaluation.md --mode json --dry-run
+node dist/cli.js --config examples/config/harness.profiles.example.json profiles
+node dist/cli.js --config examples/config/harness.profiles.example.json run "Revisa código" --profile deep --dry-run
 ```
 
-Puedes ejecutar `npm link` para disponer del ejecutable `agent-lab`. Ejecuta `pi` directamente si necesitas configurar `/login` o `/model`.
+El archivo `examples/config/harness.profiles.example.json` contiene **patrones de muestra**, no modelos garantizados en tu cuenta. Usa `models` para descubrir cuáles están disponibles y ajusta los perfiles. No incluyas credenciales en el repositorio.
 
-`--mode print` es el valor predeterminado. `--view summary|events` sólo existe para `--mode json`. RPC y SDK se estudian en `LECCION_02.md`, pero **no se incluyen en el binario actual**.
+Precedencia: `pi.model/provider/thinking` → `defaultProfile` → `--profile` → `--model/--provider/--thinking`.
 
-## Estructura
+`--model` directo descarta un `provider` anterior heredado, si no se pasa un nuevo `--provider`, para evitar pares contradictorios. Cuando un modelo se expresa como `provider/id` y se proporciona `provider` simultáneamente, ambos deben coincidir.
 
-```text
-src/cli.ts         Parsing de comandos y selección del modo
-src/config.ts      Configuración de Lección 1, sin modificaciones
-src/runtime.ts     Invocación de Pi como subprocess, print/JSON
-src/json-events.ts Interpretación mínima de registros y resultado
-examples/          Prompts de muestra y JSONL sintético
-tests/             Pruebas de CLI con ejecutable Pi simulado
-solutions/         Soluciones de ejercicios, no aplicadas al core
-LECCION_01.md      Fundamentos y bootstrap
-LECCION_02.md      Modos de ejecución, implementación y práctica
-CHANGELOG.md       Evolución de versiones
-```
+## Comandos
 
-## Seguridad y privacidad
+| Comando | Función |
+|---|---|
+| `doctor` | Comprueba la existencia del ejecutable de Pi, no las credenciales |
+| `config` | Muestra configuración efectiva sin secretos (no se admiten claves en el schema) |
+| `models [filtro]` | Delegación directa a `pi --list-models [filtro]` |
+| `profiles` | Lista perfiles y el predeterminado local del lab |
+| `run` | Print o JSONL, modelos opcionales, dry-run |
+| `run-file` | Igual que run, leyendo un prompt Markdown desde disco |
 
-- Las listas de herramientas expuestas al modelo no son un sandbox.
-- `--no-mcp` y `--no-extensions` se activan por defecto en el ejemplo, pero **no constituyen una política universal de seguridad**.
-- Un proyecto no confiable puede introducir instrucciones, configuraciones o recursos que requieran revisión.
-- `harness.config.json` permite definir el ejecutable de Pi: verifica su valor antes de ejecutar repositorios de terceros.
-- La salida JSONL puede revelar instrucciones, rutas, argumentos de herramientas o información privada. No subas archivos de eventos sin inspeccionarlos.
-- No guardes claves en `harness.config.json`, prompts, fixtures ni logs.
-- Los launchers `.cmd` de Windows pueden requerir tratamiento adicional; en esta etapa utiliza WSL o adapta el ejecutable de forma segura.
+## Estructura y documentación
 
-## Cómo evolucionar desde la Lección 1
+- `src/model-selection.ts`: composición y validación local de selección.
+- `src/config.ts`: validación de JSON y perfiles.
+- `src/runtime.ts`: subprocess de Pi, flags y salida.
+- `src/json-events.ts`: interpretación de eventos (L2, sin cambios).
+- `tests/`: pruebas con un binario Pi simulado; no consumen tokens.
+- `LECCION_01.md`, `LECCION_02.md`, `LECCION_03.md`: materiales de estudio.
+- `solutions/modulo-01-leccion-03/`: ejercicio resuelto **no aplicado** al código principal.
 
-Usa el **ZIP incremental** desde la raíz de tu repositorio. Contiene sólo los archivos creados/modificados. Si cambiaste archivos de la Lección 1, compara los cambios antes de copiarlos. El **ZIP completo** sirve como snapshot alternativo.
+## Advertencias
 
-El ejercicio `run-file` de L1 fue incorporado a v0.2.0. Si ya lo implementaste, compara `src/cli.ts` para no perder cambios propios.
+- El CLI no actúa como sandbox ni aplica presupuestos de tokens o límites de gasto.
+- `--list-models` no demuestra que las credenciales funcionen; probar con Pi real.
+- Los perfiles son una abstracción del laboratorio; no modifican `~/.pi/agent/models.json` ni `auth.json`.
+- La configuración de un ejecutable externo (`pi.executable`) es una capacidad sensible: revisa configs ajenas antes de invocarlas.
+- Nunca almacenes claves/tokens en `harness.config.json`, en ejemplos o en tests.
 
-## Referencias
-
-- https://pi.dev/docs/latest/cli
-- https://pi.dev/docs/latest/cli-integration
-- https://pi.dev/docs/latest/mcp
-- https://pi.dev/docs/latest/sessions
-- https://pi.dev/docs/latest/json
-- https://pi.dev/docs/latest/rpc
-- https://pi.dev/docs/latest/sdk
+Referencias: https://pi.dev/docs/latest/models · https://pi.dev/docs/latest/providers · https://pi.dev/docs/latest/cli · https://pi.dev/docs/latest/models-configuration
