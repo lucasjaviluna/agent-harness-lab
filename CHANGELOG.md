@@ -1,5 +1,32 @@
 # Changelog — Agent Harness Lab
 
+## v0.3.0 — Módulo 1 · Lección 3 — 2026-10-28
+
+**Nivel:** Principiante–Intermedio · **Complejidad:** Media
+
+### Funcionalidades nuevas
+
+- `models [filtro]`: invoca el catálogo propio de Pi sin parsear su salida.
+- `profiles`: lista perfiles opcionales definidos por el usuario.
+- Selección efectiva de `model`, `provider` y `thinking` en configuración, perfiles y flags.
+- Reglas explícitas de precedencia con validación de contradicciones.
+- Perfil de ejemplo **no activado** en `harness.config.json`: Pi conserva su selección nativa.
+- Mismos comandos `run` y `run-file`, también en modo JSON, sin modificar Agent Loop.
+
+### Compatibilidad y pruebas
+
+- Todos los 22 tests de v0.2.0 continúan pasando.
+- 14 tests nuevos sobre resolución, errores, CLI, delegación y compatibilidad.
+- 36 tests en total, 38 después de aplicar la solución del ejercicio.
+- Sólo pruebas con Pi simulado: no se verificó autenticación en vivo.
+
+### Límites actuales
+
+- Sin fallback automático entre modelos, enrutamiento por coste o discovery de capacidades propio.
+- Pi comprueba modelo, credenciales y soporte real de thinking en tiempo de ejecución.
+- Los perfiles no añaden políticas de seguridad ni sandbox.
+
+
 ## v0.2.0 — Módulo 1 · Lección 2 — 2026-10-27
 
 **Nivel:** Principiante–Intermedio · **Complejidad:** Media

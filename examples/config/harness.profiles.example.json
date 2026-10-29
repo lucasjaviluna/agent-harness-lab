@@ -1,0 +1,27 @@
+{
+  "pi": {
+    "executable": "pi",
+    "tools": ["read", "grep", "find", "ls"],
+    "noSession": true,
+    "disableMcp": true,
+    "disableExtensions": true
+  },
+  "execution": { "timeoutMs": 120000 },
+  "defaultProfile": "review",
+  "modelProfiles": {
+    "review": {
+      "model": "anthropic/claude-sonnet-*",
+      "provider": "anthropic",
+      "thinking": "low"
+    },
+    "deep": {
+      "model": "openai-codex/gpt-5.6-luna",
+      "thinking": "high"
+    },
+    "openai-review": {
+      "model": "openai/gpt-*",
+      "provider": "openai",
+      "thinking": "low"
+    }
+  }
+}

@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
-import type { HarnessConfig } from './config.js';
+import type { HarnessConfig, ModelSelection } from './config.js';
 import { JsonEventCollector, parsePiEvent } from './json-events.js';
 
 // El instalador administrado de Pi en Windows incluye este lanzador junto a pi.cmd.
@@ -13,9 +13,8 @@ function piCommand(executable: string, args: string[], cwd: string): { command: 
     if (name === 'pi' || name === 'pi.cmd') {
       const directories = hasPath ? [dirname(resolve(cwd, executable))] : (process.env.PATH ?? '').split(delimiter).filter(Boolean);
       for (const directory of directories) {
-        const shim = join(directory, 'pi.cmd');
         const launcher = join(directory, 'pi-launcher.js');
-        if (existsSync(shim) && existsSync(launcher)) return { command: process.execPath, args: [launcher, ...args] };
+        if (existsSync(join(directory, 'pi.cmd')) && existsSync(launcher)) return { command: process.execPath, args: [launcher, ...args] };
       }
     }
   }
@@ -23,24 +22,25 @@ function piCommand(executable: string, args: string[], cwd: string): { command: 
 }
 
 export type PiMode = 'print' | 'json';
-export type JsonView = 'summary' | 'events';
+export type JsonView = 'summary' | 'events' | 'tools';
 
 /** Mismo contrato de configuración de Lección 1, ahora con elección de modo. */
-export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print'): string[] {
+export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi): string[] {
   const args = mode === 'print' ? ['--print'] : ['--mode', 'json'];
   if (config.pi.noSession) args.push('--no-session');
   if (config.pi.disableMcp) args.push('--no-mcp');
   if (config.pi.disableExtensions) args.push('--no-extensions');
   args.push('--tools', config.pi.tools.join(','));
-  if (config.pi.model) args.push('--model', config.pi.model);
-  if (config.pi.provider) args.push('--provider', config.pi.provider);
+  if (selection.model) args.push('--model', selection.model);
+  if (selection.provider) args.push('--provider', selection.provider);
+  if (selection.thinking) args.push('--thinking', selection.thinking);
   args.push('--', prompt);
   return args;
 }
 
 /** Print sigue funcionando sin cambios para preservar compatibilidad. */
-export async function runPi(prompt: string, config: HarnessConfig, cwd: string): Promise<number> {
-  const args = buildPiArgs(prompt, config);
+export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'print', selection);
   const invocation = piCommand(config.pi.executable, args, cwd);
   return await new Promise<number>((resolve, reject) => {
     const child = spawn(invocation.command, invocation.args, {
@@ -70,8 +70,8 @@ export async function runPi(prompt: string, config: HarnessConfig, cwd: string):
  * JSONL de una única invocación. Sólo se separa por LF (NO node:readline).
  * En modo events, stdout queda reservado a registros JSONL válidos.
  */
-export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'json');
+export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'json', selection);
   const invocation = piCommand(config.pi.executable, args, cwd);
   return await new Promise<number>((resolve, reject) => {
     const child = spawn(invocation.command, invocation.args, {
@@ -101,6 +101,14 @@ export async function runPiJson(prompt: string, config: HarnessConfig, cwd: stri
         const event = parsePiEvent(line.endsWith('\r') ? line.slice(0, -1) : line);
         collector.ingest(event);
         if (view === 'events') process.stdout.write(`${line}\n`);
+        if (view === 'tools' && (event.type === 'tool_execution_start' || event.type === 'tool_execution_end')) {
+          const item = {
+            type: event.type,
+            ...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
+            ...(event.type === 'tool_execution_end' ? { isError: event.isError === true } : {}),
+          };
+          process.stdout.write(`${JSON.stringify(item)}\n`);
+        }
       } catch (error) {
         invalidate(error instanceof Error ? error.message : String(error));
       }
@@ -133,6 +141,7 @@ export async function runPiJson(prompt: string, config: HarnessConfig, cwd: stri
     });
     child.once('close', code => {
       clearTimeout(timer);
+      if (child.pid === undefined) return;
       const exitCode = timedOut ? 124 : (code ?? 1);
       const summary = collector.finish(exitCode, timedOut ? 'Tiempo máximo excedido' : protocolError);
       if (view === 'summary') process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
@@ -156,6 +165,30 @@ export async function getPiVersion(config: HarnessConfig, cwd: string): Promise<
     child.once('close', code => {
       if (code !== 0) reject(new Error(`Pi respondió con error: ${err.trim() || `código ${code}`}`));
       else resolve(out.trim() || '(sin información de versión)');
+    });
+  });
+}
+
+/** Delegamos el catálogo nativo a Pi. NO hacemos scraping ni almacenamos claves. */
+export async function listPiModels(config: HarnessConfig, cwd: string, filter?: string): Promise<number> {
+  const args = ['--list-models', ...(filter ? [filter] : [])];
+  const invocation = piCommand(config.pi.executable, args, cwd);
+  return await new Promise<number>((resolve, reject) => {
+    const child = spawn(invocation.command, invocation.args, {
+      cwd, shell: false, env: process.env, stdio: 'inherit',
+    });
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); }, config.execution.timeoutMs);
+    child.once('error', error => {
+      clearTimeout(timer);
+      reject(new Error(`No se pudo iniciar Pi (${config.pi.executable}): ${error.message}`));
+    });
+    child.once('close', code => {
+      clearTimeout(timer);
+      if (timedOut) {
+        console.error(`Se alcanzó el tiempo máximo (${config.execution.timeoutMs} ms).`);
+        resolve(124);
+      } else resolve(code ?? 1);
     });
   });
 }
