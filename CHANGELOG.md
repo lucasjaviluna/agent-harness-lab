@@ -1,3 +1,14 @@
+# Changelog
+
+## v0.4.0 — Módulo 1 / Lección 4 — Sesiones y contexto
+
+- Composición validada de flags de sesión: `--persist`, `--ephemeral`, `--continue`, `--session`, `--fork`, `--session-dir`, `--name`.
+- Persistencia **optativa**: no cambia el modo efímero que existía en v0.3.0.
+- Se reutiliza el SessionManager y almacenamiento JSONL de Pi sin implementar otro gestor.
+-  Nuevos tests de regresión, conflictos, JSON/print, prompts especiales y compatibilidad de CLI.
+- Se **preservan** los cambios Windows: `pi-launcher.js`, `pi.cmd`, preload de tests y `shell:false`.
+- No se incorpora todavía compaction programática: se aprende mediante `/compact` en Pi.
+
 # Changelog — Agent Harness Lab
 
 ## v0.3.0 — Módulo 1 · Lección 3 — 2026-10-28

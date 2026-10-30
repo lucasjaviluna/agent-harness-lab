@@ -1,0 +1,4 @@
+{"type":"session","version":3,"id":"demo-only-123","timestamp":"2026-10-29T12:00:00.000Z","cwd":"/workspace"}
+{"type":"message","id":"a1","parentId":null,"timestamp":"2026-10-29T12:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"Presentá el proyecto"}]}}
+{"type":"message","id":"b1","parentId":"a1","timestamp":"2026-10-29T12:00:02.000Z","message":{"role":"assistant","content":[{"type":"text","text":"Es un proyecto de ejemplo"}]}}
+{"type":"message","id":"b2","parentId":"a1","timestamp":"2026-10-29T12:00:04.000Z","message":{"role":"assistant","content":[{"type":"text","text":"Otra alternativa (rama)"}]}}

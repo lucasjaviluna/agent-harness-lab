@@ -15,24 +15,30 @@ import {
   runPiJson,
 } from "./runtime.js";
 import type { JsonView, PiMode } from "./runtime.js";
+import type { SessionOptions } from "./session-options.js";
 
-const HELP = `Agent Harness Lab v0.3.0 — Módulo 1 / Lección 3
+const HELP = `Agent Harness Lab v0.4.0 — Módulo 1 / Lección 4
 
 Uso:
   agent-lab doctor [--config archivo.json]
   agent-lab config [--config archivo.json]
-  agent-lab profiles [--config archivo.json] [show thinking-level]
+  agent-lab profiles [--config archivo.json]
   agent-lab models [filtro] [--config archivo.json]
   agent-lab run "prompt" [--mode print|json] [--view summary|events|tools]
             [--profile nombre] [--model id] [--provider id] [--thinking nivel] [--dry-run]
   agent-lab run-file archivo.md [opciones de run]
+  Opciones de sesión (run / run-file):
+    --persist | --ephemeral (default: efímero)
+    --continue | --session <ruta|id> | --fork <ruta|id>
+    --session-dir <directorio>  --name <nombre>
   agent-lab --help
 
 Niveles thinking: off, minimal, low, medium, high, xhigh, max.
 Precedencia: pi config < defaultProfile < --profile < flags de run.
 La selección de modelo no valida credenciales; Pi resuelve su catálogo.
 --view sólo es válido con --mode json. --dry-run no inicia Pi.
-ADVERTENCIA: herramientas y flags NO equivalen a un sandbox.`;
+ADVERTENCIA: sesiones pueden contener prompts, resultados y archivos sensibles.
+Los flags de herramientas NO equivalen a un sandbox.`;
 
 interface ParsedArgs {
   command: string;
@@ -43,6 +49,7 @@ interface ParsedArgs {
   dryRun: boolean;
   overrides: ModelOverrides;
   runOnlyFlags: string[];
+  session: SessionOptions;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -53,6 +60,7 @@ function parseArgs(argv: string[]): ParsedArgs {
   let dryRun = false;
   const overrides: ModelOverrides = {};
   const runOnlyFlags: string[] = [];
+  const session: SessionOptions = {};
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i];
     if (
@@ -64,6 +72,10 @@ function parseArgs(argv: string[]): ParsedArgs {
         "--model",
         "--provider",
         "--thinking",
+        "--session",
+        "--fork",
+        "--session-dir",
+        "--name",
       ].includes(token)
     ) {
       const value = argv[++i];
@@ -80,6 +92,17 @@ function parseArgs(argv: string[]): ParsedArgs {
           throw new Error("--view debe ser summary, events o tools");
         view = value;
         runOnlyFlags.push(token);
+      } else if (
+        token === "--session" ||
+        token === "--fork" ||
+        token === "--session-dir" ||
+        token === "--name"
+      ) {
+        runOnlyFlags.push(token);
+        if (token === "--session") session.session = value;
+        if (token === "--fork") session.fork = value;
+        if (token === "--session-dir") session.sessionDir = value;
+        if (token === "--name") session.name = value;
       } else {
         runOnlyFlags.push(token);
         if (token === "--profile") overrides.profile = value;
@@ -88,6 +111,15 @@ function parseArgs(argv: string[]): ParsedArgs {
         if (token === "--thinking")
           overrides.thinking = parseThinkingLevel(value, "--thinking");
       }
+    } else if (
+      token === "--persist" ||
+      token === "--ephemeral" ||
+      token === "--continue"
+    ) {
+      runOnlyFlags.push(token);
+      if (token === "--persist") session.persist = true;
+      if (token === "--ephemeral") session.ephemeral = true;
+      if (token === "--continue") session.continue = true;
     } else if (token === "--dry-run") {
       dryRun = true;
       runOnlyFlags.push(token);
@@ -102,6 +134,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     dryRun,
     overrides,
     runOnlyFlags,
+    session,
   };
 }
 
@@ -115,6 +148,7 @@ async function main(argv: string[]): Promise<number> {
     dryRun,
     overrides,
     runOnlyFlags,
+    session,
   } = parseArgs(argv);
   if (["--help", "-h", "help"].includes(command)) {
     console.log(HELP);
@@ -143,7 +177,6 @@ async function main(argv: string[]): Promise<number> {
   }
   if (command === "profiles") {
     if (rest.length) throw new Error("profiles no acepta argumentos");
-
     console.log(
       JSON.stringify(
         {
@@ -188,7 +221,7 @@ async function main(argv: string[]): Promise<number> {
       JSON.stringify(
         {
           command: config.pi.executable,
-          args: buildPiArgs(prompt, config, mode, selection),
+          args: buildPiArgs(prompt, config, mode, selection, session),
           cwd: process.cwd(),
         },
         null,
@@ -198,8 +231,15 @@ async function main(argv: string[]): Promise<number> {
     return 0;
   }
   return mode === "print"
-    ? runPi(prompt, config, process.cwd(), selection)
-    : runPiJson(prompt, config, process.cwd(), view ?? "summary", selection);
+    ? runPi(prompt, config, process.cwd(), selection, session)
+    : runPiJson(
+        prompt,
+        config,
+        process.cwd(),
+        view ?? "summary",
+        selection,
+        session,
+      );
 }
 
 main(process.argv.slice(2))

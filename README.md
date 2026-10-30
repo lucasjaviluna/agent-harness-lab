@@ -1,7 +1,7 @@
-# Agent Harness Lab — v0.3.0
+# Agent Harness Lab — v0.4.0
 
 Curso: **Pi.dev: de cero a construir un Agent Harness profesional**
-**Módulo 1 — Fundamentos de Pi · Lección 3 — Modelos, proveedores y perfiles**
+**Módulo 1 — Fundamentos de Pi · Lección 4 — Sesiones, persistencia, branching y compaction**
 **Nivel:** Principiante–Intermedio · **Complejidad:** Media
 
 Proyecto conductor **independiente** de `pi-harness`. Evoluciona sobre v0.2.0 sin reconstruir Agent Loop, modelos ni catálogo de proveedores. En esta etapa el harness invoca el CLI de Pi como proceso hijo.
@@ -73,3 +73,23 @@ Precedencia: `pi.model/provider/thinking` → `defaultProfile` → `--profile` �
 - Nunca almacenes claves/tokens en `harness.config.json`, en ejemplos o en tests.
 
 Referencias: https://pi.dev/docs/latest/models · https://pi.dev/docs/latest/providers · https://pi.dev/docs/latest/cli · https://pi.dev/docs/latest/models-configuration
+
+
+## Módulo 1 / Lección 4: sesiones y contexto
+
+El laboratorio sigue siendo efímero por defecto. Sólo se persiste al usar `--persist` o una
+selección de sesión (`--continue`, `--session`, `--fork`), respetando el manejo nativo de Pi.
+
+```bash
+node dist/cli.js run "Presenta este proyecto" --mode json --persist --name "intro"
+node dist/cli.js run "Explica su estructura" --mode json --continue
+node dist/cli.js run "Alternativa de solución" --mode json --fork <ruta-o-id>
+node dist/cli.js run-file examples/prompts/session-analysis.md --mode json --persist --dry-run
+```
+
+`--session-dir` puede dirigir el almacenamiento de Pi a una carpeta elegida. El harness no crea
+su propio formato de sesiones. Ver `LECCION_04.md` para práctica de `/tree`, `/compact`,
+`/resume`, privacidad y limitaciones del modo print/JSON.
+
+**Windows:** se conservan la resolución de `pi-launcher.js` y los tests de simulación mediante
+preload, sin `shell: true`. El ensayo real en Windows debe ejecutarse en un equipo Windows.

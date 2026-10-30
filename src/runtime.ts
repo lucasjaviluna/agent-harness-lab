@@ -4,8 +4,11 @@ import { delimiter, dirname, join, resolve } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
 import type { HarnessConfig, ModelSelection } from './config.js';
 import { JsonEventCollector, parsePiEvent } from './json-events.js';
+import { buildSessionArgs } from './session-options.js';
+import type { SessionOptions } from './session-options.js';
 
-// El instalador administrado de Pi en Windows incluye este lanzador junto a pi.cmd.
+// Windows: la instalación administrada puede exponer pi.cmd y pi-launcher.js.
+// Evita shell:true y conserva los argumentos como datos.
 function piCommand(executable: string, args: string[], cwd: string): { command: string; args: string[] } {
   if (process.platform === 'win32') {
     const hasPath = /[\\/]/.test(executable);
@@ -25,9 +28,9 @@ export type PiMode = 'print' | 'json';
 export type JsonView = 'summary' | 'events' | 'tools';
 
 /** Mismo contrato de configuración de Lección 1, ahora con elección de modo. */
-export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi): string[] {
+export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi, session: SessionOptions = {}): string[] {
   const args = mode === 'print' ? ['--print'] : ['--mode', 'json'];
-  if (config.pi.noSession) args.push('--no-session');
+  args.push(...buildSessionArgs(config, session));
   if (config.pi.disableMcp) args.push('--no-mcp');
   if (config.pi.disableExtensions) args.push('--no-extensions');
   args.push('--tools', config.pi.tools.join(','));
@@ -39,10 +42,10 @@ export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode 
 }
 
 /** Print sigue funcionando sin cambios para preservar compatibilidad. */
-export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'print', selection);
-  const invocation = piCommand(config.pi.executable, args, cwd);
+export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi, session: SessionOptions = {}): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'print', selection, session);
   return await new Promise<number>((resolve, reject) => {
+    const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {
       cwd, shell: false, stdio: 'inherit', env: process.env,
     });
@@ -70,10 +73,10 @@ export async function runPi(prompt: string, config: HarnessConfig, cwd: string, 
  * JSONL de una única invocación. Sólo se separa por LF (NO node:readline).
  * En modo events, stdout queda reservado a registros JSONL válidos.
  */
-export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'json', selection);
-  const invocation = piCommand(config.pi.executable, args, cwd);
+export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi, session: SessionOptions = {}): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'json', selection, session);
   return await new Promise<number>((resolve, reject) => {
+    const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {
       cwd, shell: false, env: process.env, stdio: ['ignore', 'pipe', 'inherit'],
     });
@@ -152,8 +155,8 @@ export async function runPiJson(prompt: string, config: HarnessConfig, cwd: stri
 }
 
 export async function getPiVersion(config: HarnessConfig, cwd: string): Promise<string> {
-  const invocation = piCommand(config.pi.executable, ['--version'], cwd);
   return await new Promise<string>((resolve, reject) => {
+    const invocation = piCommand(config.pi.executable, ['--version'], cwd);
     const child = spawn(invocation.command, invocation.args, {
       cwd, shell: false, stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000,
     });
@@ -172,8 +175,8 @@ export async function getPiVersion(config: HarnessConfig, cwd: string): Promise<
 /** Delegamos el catálogo nativo a Pi. NO hacemos scraping ni almacenamos claves. */
 export async function listPiModels(config: HarnessConfig, cwd: string, filter?: string): Promise<number> {
   const args = ['--list-models', ...(filter ? [filter] : [])];
-  const invocation = piCommand(config.pi.executable, args, cwd);
   return await new Promise<number>((resolve, reject) => {
+    const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {
       cwd, shell: false, env: process.env, stdio: 'inherit',
     });

@@ -9,3 +9,5 @@ mi-ejecucion.jsonl
 
 .ytk-memory
 .ytk-memory.json
+# Directorio local de sesiones (puede contener datos sensibles)
+sesiones-locales/
