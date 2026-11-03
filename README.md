@@ -1,7 +1,7 @@
-# Agent Harness Lab — v0.4.0
+# Agent Harness Lab — v0.5.0
 
 Curso: **Pi.dev: de cero a construir un Agent Harness profesional**
-**Módulo 1 — Fundamentos de Pi · Lección 4 — Sesiones, persistencia, branching y compaction**
+**Módulo 1 — Fundamentos de Pi · Lección 5 — Context Engineering, AGENTS.md y prompt templates**
 **Nivel:** Principiante–Intermedio · **Complejidad:** Media
 
 Proyecto conductor **independiente** de `pi-harness`. Evoluciona sobre v0.2.0 sin reconstruir Agent Loop, modelos ni catálogo de proveedores. En esta etapa el harness invoca el CLI de Pi como proceso hijo.
@@ -93,3 +93,31 @@ su propio formato de sesiones. Ver `LECCION_04.md` para práctica de `/tree`, `/
 
 **Windows:** se conservan la resolución de `pi-launcher.js` y los tests de simulación mediante
 preload, sin `shell: true`. El ensayo real en Windows debe ejecutarse en un equipo Windows.
+
+
+## Módulo 1 / Lección 5: Context Engineering
+
+Los recursos nativos de Pi hacen la mayor parte del trabajo. El lab ofrece inspección
+orientativa del directorio actual y opciones explícitas por ejecución.
+
+```bash
+node dist/cli.js context
+node dist/cli.js run "Revisa este proyecto" --append-instructions examples/instructions/code-review.md --dry-run
+node dist/cli.js run "Explica la estructura" --no-context-files --dry-run
+node dist/cli.js run-file examples/context-experiment.md --append-instructions examples/instructions/test-first.md --mode json --dry-run
+```
+
+- `context` muestra archivos y rutas del **cwd solamente**; no inspecciona recursos
+  globales ni confirma que Pi haya confiado/cargado los recursos. No revela contenidos.
+- `--append-instructions ruta.md` valida el archivo local y lo delega a Pi como
+  `--append-system-prompt ruta-absoluta`; puede repetirse.
+- `--no-context-files` deshabilita discovery de archivos AGENTS/CLAUDE de Pi para
+  esa ejecución, pero NO impide agregar instrucciones mediante otras vías.
+- `.pi/prompts/*.md` sólo se activa tras trust del proyecto; usa Pi interactivo
+  para probar `/review` y `/plan`. Nunca autoapruebes repositorios desconocidos.
+- Los archivos de instrucciones NO son barreras de seguridad. Revisa el contenido
+  antes de usar proyectos externos o archivos pasados por `--append-instructions`.
+- No se toca `piCommand()` de Windows; se mantienen los tests y el uso de `shell:false`.
+
+Lección: `LECCION_05.md`; ejercicio opcional resuelto en
+`solutions/modulo-01-leccion-05/`.

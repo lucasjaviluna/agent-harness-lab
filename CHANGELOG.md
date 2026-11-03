@@ -1,3 +1,13 @@
+## v0.5.0 — Módulo 1 / Lección 5 — Context Engineering
+
+- `agent-lab context`: diagnóstico del cwd (AGENTS, `.pi/SYSTEM.md`, `.pi/APPEND_SYSTEM.md`, prompt templates). No duplica ni reemplaza descubrimiento de Pi.
+- `--append-instructions <archivo>` repetible en `run` y `run-file`, validado y pasado como `--append-system-prompt` a Pi.
+- `--no-context-files` para deshabilitar descubrimiento AGENTS/CLAUDE por ejecución.
+- Ejemplos de instrucciones, `.pi/APPEND_SYSTEM.md`, `/review` y `/plan`.
+- Tests de casos válidos, límites, errores y preservación del comportamiento anterior.
+- Ejercicio opcional US-LAB-005 con solución separada.
+- Preservada la ejecución Windows basada en `pi-launcher.js` y `shell:false`.
+
 # Changelog
 
 ## v0.4.0 — Módulo 1 / Lección 4 — Sesiones y contexto
