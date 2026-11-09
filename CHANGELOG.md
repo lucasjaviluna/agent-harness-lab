@@ -1,3 +1,13 @@
+## v0.7.0 — Módulo 2 / Lección 2 — Extensiones TypeScript
+- `agent-lab extensions list`: inventario read-only de extensiones locales `.pi/extensions`.
+- `--extension` repetible y `--no-extensions` en `run` / `run-file`. Pi conserva carga y confianza.
+- `lifecycle-observer.ts` registra eventos (`session_start`, `agent_start`, `tool_execution_end`, `agent_settled`, `session_shutdown`) y el comando `/lab-stats`.
+- `extension-options.ts`: validación de rutas explícitas, sin importar ni ejecutar código.
+- Tests de CLI, rutas, eventos, sesión y compatibilidad con UI ausente.
+- Ejercicio US-LAB-007: `extensions show <nombre>` con solución separada.
+- Sin cambios a la resolución Windows `piCommand()`, `shell:false`, ni a Skills previas.
+- El main publicado se encontró en v0.5.0; el patch se entrega sobre el snapshot v0.6.0.
+
 ## v0.6.0 — Módulo 2 / Lección 1 — Skills
 - `agent-lab skills list`: informe read-only de Skills locales del proyecto (`.agents/skills`, `.pi/skills`), sin sustituir el descubrimiento de Pi.
 - `--skill` repetible y `--no-skills` en `run` y `run-file`, delegados a los flags nativos de Pi.

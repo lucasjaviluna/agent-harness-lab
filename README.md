@@ -151,3 +151,21 @@ node dist/cli.js run-file examples/context-experiment.md --append-instructions e
 
 Lección: `LECCION_05.md`; ejercicio opcional resuelto en
 `solutions/modulo-01-leccion-05/`.
+
+
+## Módulo 2 / Lección 2: Extensiones TypeScript
+
+`agent-lab` no implementa un loader de TypeScript: usa el mecanismo de Pi para extender el Agent Loop. La nueva extensión `.pi/extensions/lifecycle-observer.ts` observa eventos y registra `/lab-stats` dentro de Pi interactivo.
+
+```bash
+node dist/cli.js extensions list
+node dist/cli.js run "Analiza el repositorio" --extension .pi/extensions/lifecycle-observer.ts --dry-run
+node dist/cli.js run "Analiza el repositorio" --extension .pi/extensions/lifecycle-observer.ts --mode json
+```
+
+- Por defecto la configuración del lab bloquea las extensiones autodetectadas (`disableExtensions=true`); **las rutas `--extension` explícitas sí se cargan**, igual que en Pi.
+- `extensions list` inspecciona el directorio local, no representa el inventario efectivo de Pi ni comprueba confianza del proyecto.
+- Las extensiones pueden ejecutar código arbitrario con los permisos de Pi; **no son un sandbox**.
+- Para ver `/lab-stats`, iniciá `pi --no-extensions -e .pi/extensions/lifecycle-observer.ts` en una sesión interactiva.
+- Leer `LECCION_07.md` y el ejercicio resuelto en `solutions/modulo-02-leccion-02/`.
+- No se altera el lanzador ni los tests específicos de Windows.

@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: Skills y capacidades especializadas de Pi",
+  "description": "Laboratorio incremental: extensiones TypeScript y ciclo de vida de Pi",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },
