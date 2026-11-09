@@ -1,3 +1,14 @@
+## v0.10.0 — Módulo 2 · Lección 5 (Lección global 10) — TUI
+
+- Extensión `.pi/extensions/operator-ui.ts`: dashboard opt-in, encabezado, estado, widget, footer opcional y panel interactivo.
+- Estado efímero puro en `.pi/ui/operator-state.mjs`; no guarda prompts, credenciales ni resultados.
+- Comandos interactivos `/lab-ui`, `/lab-widget`, `/lab-footer`, `/lab-panel`.
+- No reemplaza la interfaz original hasta ejecutar `/lab-ui on`; footer alternativo es explícito y restaurable.
+- Manejo correcto de modos: operaciones TUI se omiten en print/JSON/RPC.
+- Tests nuevos sin tokens, ejercicio US-LAB-010 con solución separada.
+- `src/`, tests antiguos y resolución Windows con `pi-launcher.js` + `shell: false` se mantienen intactos.
+- La personalización visual NO equivale a sandbox ni a aprobación humana.
+
 ## v0.9.0 — Módulo 2 · Lección 4 (Lección 9)
 
 - Guard `approval-guard.ts`: intercepta `tool_call` y aplica decisiones `allow`, `deny`, `ask`.

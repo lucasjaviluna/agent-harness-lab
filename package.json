@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: interceptores, política de herramientas y aprobaciones humanas",
+  "description": "Laboratorio incremental: TUI de Pi con panel de operador, widgets y diálogos",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },

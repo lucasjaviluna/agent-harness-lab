@@ -1,3 +1,23 @@
+# Agent Harness Lab — v0.10.0
+
+**Módulo 2 · Lección 5 (Lección global 10): Personalización de la TUI de Pi**
+**Nivel:** Intermedio–Avanzado · **Complejidad:** Alta
+
+Se incorpora `.pi/extensions/operator-ui.ts` con comandos `/lab-ui`, `/lab-panel`, `/lab-widget` y `/lab-footer`. No modifica el Agent Loop, el CLI, ni el ejecutable de Pi en Windows. La interfaz está desactivada por defecto (opt-in).
+
+```bash
+npm install
+npm test
+npm run typecheck
+pi --no-extensions --extension .pi/extensions/operator-ui.ts
+```
+
+Dentro de Pi: `/lab-ui on` → `/lab-panel` → `/lab-widget below` → `/lab-ui off`. La guía de laboratorio está en [examples/tui-operator.md](examples/tui-operator.md) y la explicación completa en [LECCION_10.md](LECCION_10.md).
+
+**Limitaciones:** los comandos con TUI son exclusivos de `ctx.mode === 'tui'`; los tests usan dobles de Pi y no certifican renderizado en un terminal Windows. Los controles de autorización de la Lección 9 son independientes de la UI.
+
+---
+
 # Agent Harness Lab — v0.9.0
 
 **Módulo 2 · Lección 4 (Lección global 9): Interceptores, políticas y aprobaciones humanas**
