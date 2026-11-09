@@ -1,3 +1,12 @@
+## v0.8.0 — Módulo 2 · Lección 3 (Lección 8)
+
+- Custom Tool `lab_workspace_report` mediante extensión Pi de solo lectura.
+- Schema de parámetros TypeBox y validaciones defensivas de rutas y límites.
+- Integración mediante configuración `examples/config/harness.tools.example.json` y flags de extensión existentes.
+- Tests nuevos de schema declarativo, paths, symlink, aborto, resultados y allowlist de CLI.
+- Ejercicio US-LAB-008 con solución `lab_package_summary`, separada del código principal.
+- No se alteraron la ejecución de Pi en Windows, los procesos sin shell, ni el Agent Loop.
+
 ## v0.7.0 — Módulo 2 / Lección 2 — Extensiones TypeScript
 - `agent-lab extensions list`: inventario read-only de extensiones locales `.pi/extensions`.
 - `--extension` repetible y `--no-extensions` en `run` / `run-file`. Pi conserva carga y confianza.

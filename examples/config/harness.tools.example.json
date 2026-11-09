@@ -1,0 +1,10 @@
+{
+  "pi": {
+    "executable": "pi",
+    "tools": ["read", "grep", "find", "ls", "lab_workspace_report"],
+    "noSession": true,
+    "disableMcp": true,
+    "disableExtensions": true
+  },
+  "execution": { "timeoutMs": 120000 }
+}

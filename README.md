@@ -1,3 +1,25 @@
+# Agent Harness Lab — v0.8.0
+
+**Módulo 2 · Lección 3 (Lección 8) — Custom Tools, schemas y ejecución controlada**
+**Nivel:** Intermedio–Avanzado · **Complejidad:** Media–Alta
+
+Se incorpora `.pi/extensions/workspace-inspector.ts`, una extensión con la herramienta `lab_workspace_report`. Reutiliza `--extension` de la Lección 7 y la selección explícita `--tools` de Pi. El CLI **no** ejecuta la Tool: su `execute()` se ejecuta dentro del proceso Pi.
+
+```bash
+npm install
+npm test
+npm run typecheck
+node dist/cli.js run-file examples/tools/workspace-inspection.md \
+  --config examples/config/harness.tools.example.json \
+  --extension .pi/extensions/workspace-inspector.ts --mode json --view tools --dry-run
+```
+
+**Importante:** para que el modelo pueda invocar la nueva Tool, `pi.tools` debe incluir `lab_workspace_report`. `--no-extensions` no impide cargar una extensión explícita. La Tool es de solo lectura por diseño, pero **no proporciona sandboxing**. La verificación real contra Pi requiere un proveedor autenticado; los tests automatizados no usan tokens.
+
+**Material:** [LECCION_08.md](LECCION_08.md) · Ejercicio opcional US-LAB-008 en `solutions/modulo-02-leccion-03/`.
+
+---
+
 # Agent Harness Lab — v0.6.0
 
 **Módulo 2 · Lección 1 — Skills y capacidades especializadas en Pi**
