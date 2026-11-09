@@ -1,3 +1,12 @@
+## v0.9.0 — Módulo 2 · Lección 4 (Lección 9)
+
+- Guard `approval-guard.ts`: intercepta `tool_call` y aplica decisiones `allow`, `deny`, `ask`.
+- Evaluador puro `approval-policy.mjs`, configuración JSON validada y política fail-closed ante errores.
+- Escrituras y ediciones con aprobación por llamada en TUI/RPC; rechazadas en print/JSON sin UI.
+- Bloqueo mínimo de rutas protegidas, traversal y symlinks; `bash` denegado por defecto.
+- Ejemplos de CLI y guía manual; tests mock sin tokens; ejercicio US-LAB-009 con solución separada.
+- Sin modificar `src/`, `piCommand()` o los tests Windows. No es un sandbox de producción.
+
 ## v0.8.0 — Módulo 2 · Lección 3 (Lección 8)
 
 - Custom Tool `lab_workspace_report` mediante extensión Pi de solo lectura.

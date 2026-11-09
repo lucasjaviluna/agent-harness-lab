@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "bash": "deny",
+  "denyTools": [],
+  "askTools": [],
+  "denyWriteExtensions": [".pem", ".key", ".p12"]
+}

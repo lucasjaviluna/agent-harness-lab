@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: Custom Tools con schemas y ejecución controlada",
+  "description": "Laboratorio incremental: interceptores, política de herramientas y aprobaciones humanas",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },

@@ -1,3 +1,29 @@
+# Agent Harness Lab — v0.9.0
+
+**Módulo 2 · Lección 4 (Lección global 9): Interceptores, políticas y aprobaciones humanas**
+**Nivel:** Avanzado inicial · **Complejidad:** Alta
+
+Lección completa en [LECCION_09.md](LECCION_09.md). Sobre v0.8.0, se añade una extensión `approval-guard` que intercepta `tool_call` y decide `allow`, `deny` o `ask`. La configuración del proyecto está en `.pi/policies/tool-approvals.json`. **No se modifica el Agent Loop de Pi ni el CLI existente.**
+
+```bash
+npm install
+npm test
+npm run typecheck
+node dist/cli.js run-file examples/approvals/change-request.md --config examples/config/harness.approvals.example.json --extension .pi/extensions/approval-guard.ts --dry-run
+```
+
+En una instalación real de Pi, probar aprobaciones en modo TUI:
+
+```bash
+pi --no-extensions --extension .pi/extensions/approval-guard.ts --tools read,ls,find,grep,write,edit
+```
+
+**Comportamiento:** lectura básica permitida, escritura y edición con confirmación por llamada, rutas protegidas denegadas y shell deshabilitado por defecto. Print/JSON no pueden responder confirmaciones, por eso se deniegan allí las operaciones que exigen aprobación. El guard sólo existe cuando se carga la extensión; no garantiza sandboxing, DLP ni enforcement de producción.
+
+**Ejercicio:** US-LAB-009 en `solutions/modulo-02-leccion-04/`, separado de la implementación base.
+
+---
+
 # Agent Harness Lab — v0.8.0
 
 **Módulo 2 · Lección 3 (Lección 8) — Custom Tools, schemas y ejecución controlada**

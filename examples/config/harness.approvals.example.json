@@ -1,0 +1,10 @@
+{
+  "pi": {
+    "executable": "pi",
+    "tools": ["read", "ls", "find", "grep", "write", "edit"],
+    "noSession": true,
+    "disableMcp": true,
+    "disableExtensions": true
+  },
+  "execution": { "timeoutMs": 120000 }
+}
