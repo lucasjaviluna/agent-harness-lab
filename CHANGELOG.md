@@ -1,3 +1,12 @@
+## v0.6.0 — Módulo 2 / Lección 1 — Skills
+- `agent-lab skills list`: informe read-only de Skills locales del proyecto (`.agents/skills`, `.pi/skills`), sin sustituir el descubrimiento de Pi.
+- `--skill` repetible y `--no-skills` en `run` y `run-file`, delegados a los flags nativos de Pi.
+- Validación de rutas explícitas (directorio con `SKILL.md` o archivo `SKILL.md`).
+- Ejemplos `agent-review` (selección automática posible) y `test-triage` (sólo invocación explícita), referencias, assets y script Node portátil.
+- 12 tests adicionales (75 superados + 1 omitido en Linux); 3 tests adicionales en la solución opcional (78 + 1 omitido).
+- Preservados Windows `pi-launcher.js`, `shell:false`, `session-options`, contexto, JSONL y configuración previa.
+- Ejercicio US-LAB-006: `skills check` con solución completa separada.
+
 ## v0.5.0 — Módulo 1 / Lección 5 — Context Engineering
 
 - `agent-lab context`: diagnóstico del cwd (AGENTS, `.pi/SYSTEM.md`, `.pi/APPEND_SYSTEM.md`, prompt templates). No duplica ni reemplaza descubrimiento de Pi.

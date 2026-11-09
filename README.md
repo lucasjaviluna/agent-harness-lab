@@ -1,3 +1,33 @@
+# Agent Harness Lab — v0.6.0
+
+**Módulo 2 · Lección 1 — Skills y capacidades especializadas en Pi**
+**Nivel:** Intermedio · **Complejidad:** Media
+
+**Proyecto incremental:** continuación de las cinco lecciones del Módulo 1. El CLI delega en Pi el Agent Loop, modelos, sesiones y descubrimiento real de Skills. No requiere modificar `pi-harness`.
+
+## Novedades v0.6.0
+
+- `agent-lab skills list`: inventario de directorios de Skills del proyecto, sin ejecutar Pi. Es diagnóstico orientativo, no la lista efectiva de Pi.
+- `agent-lab run ... --skill <ruta>` (repetible): registro explícito de Skills en Pi, tras validar un directorio con `SKILL.md`.
+- `agent-lab run ... --no-skills`: desactiva descubrimiento implícito; `--skill` explícito sigue habilitado.
+- Dos ejemplos portables: `.agents/skills/agent-review` y `.agents/skills/test-triage` (este último es sólo invocación explícita).
+- `tests/skills.test.mjs`, ejemplos de logs Node y solución opcional US-LAB-006 separada.
+
+```bash
+npm install
+npm test
+npm run typecheck
+node dist/cli.js skills list
+node dist/cli.js run "Revisá src/runtime.ts" --skill .agents/skills/agent-review --dry-run
+node dist/cli.js run "Revisá tests" --no-skills --skill .agents/skills/test-triage --dry-run
+```
+
+Las Skills automáticas no garantizan invocación por el modelo. Usá `/skill:agent-review` y `/skill:test-triage` en Pi interactivo para invocación explícita. Pi puede requerir confiar en el proyecto. La configuración inicial del laboratorio no habilita `bash`: los scripts incluidos se prueban manualmente con Node.
+
+**Documentación:** [LECCION_06.md](LECCION_06.md). La solución del ejercicio está en `solutions/modulo-02-leccion-01/`, sin aplicar al código principal.
+
+---
+
 # Agent Harness Lab — v0.5.0
 
 Curso: **Pi.dev: de cero a construir un Agent Harness profesional**

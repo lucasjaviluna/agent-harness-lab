@@ -18,8 +18,10 @@ import type { JsonView, PiMode } from "./runtime.js";
 import type { SessionOptions } from "./session-options.js";
 import type { ContextOptions } from "./context-options.js";
 import { inspectProjectContext } from "./context-report.js";
+import { listProjectSkills } from "./skills-report.js";
+import type { SkillOptions } from "./skill-options.js";
 
-const HELP = `Agent Harness Lab v0.5.0 — Módulo 1 / Lección 5
+const HELP = `Agent Harness Lab v0.6.0 — Módulo 2 / Lección 1
 
 Uso:
   agent-lab doctor [--config archivo.json]
@@ -27,11 +29,14 @@ Uso:
   agent-lab profiles [--config archivo.json]
   agent-lab models [filtro] [--config archivo.json]
   agent-lab context [--config archivo.json]
+  agent-lab skills list [--config archivo.json]
   agent-lab run "prompt" [--mode print|json] [--view summary|events|tools]
             [--profile nombre] [--model id] [--provider id] [--thinking nivel] [--dry-run]
   agent-lab run-file archivo.md [opciones de run]
   Opciones de contexto (run / run-file):
     --append-instructions <archivo.md> (repetible)  --no-context-files
+  Opciones de skills (run / run-file):
+    --skill <directorio|SKILL.md> (repetible)  --no-skills
   Opciones de sesión (run / run-file):
     --persist | --ephemeral (default: efímero)
     --continue | --session <ruta|id> | --fork <ruta|id>
@@ -56,6 +61,7 @@ interface ParsedArgs {
   runOnlyFlags: string[];
   session: SessionOptions;
   context: ContextOptions;
+  skills: SkillOptions;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -68,6 +74,7 @@ function parseArgs(argv: string[]): ParsedArgs {
   const runOnlyFlags: string[] = [];
   const session: SessionOptions = {};
   const context: ContextOptions = {};
+  const skills: SkillOptions = {};
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i];
     if (
@@ -84,13 +91,17 @@ function parseArgs(argv: string[]): ParsedArgs {
         "--session-dir",
         "--name",
         "--append-instructions",
+        "--skill",
       ].includes(token)
     ) {
       const value = argv[++i];
       if (!value || value.startsWith("--"))
         throw new Error(`${token} requiere un valor`);
       if (token === "--config") configFile = value;
-      else if (token === "--append-instructions") {
+      else if (token === "--skill") {
+        (skills.paths ??= []).push(value);
+        runOnlyFlags.push(token);
+      } else if (token === "--append-instructions") {
         (context.appendInstructions ??= []).push(value);
         runOnlyFlags.push(token);
       } else if (token === "--mode") {
@@ -131,6 +142,9 @@ function parseArgs(argv: string[]): ParsedArgs {
       if (token === "--persist") session.persist = true;
       if (token === "--ephemeral") session.ephemeral = true;
       if (token === "--continue") session.continue = true;
+    } else if (token === "--no-skills") {
+      skills.noSkills = true;
+      runOnlyFlags.push(token);
     } else if (token === "--no-context-files") {
       context.noContextFiles = true;
       runOnlyFlags.push(token);
@@ -150,6 +164,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     runOnlyFlags,
     session,
     context,
+    skills,
   };
 }
 
@@ -165,6 +180,7 @@ async function main(argv: string[]): Promise<number> {
     runOnlyFlags,
     session,
     context,
+    skills,
   } = parseArgs(argv);
   if (["--help", "-h", "help"].includes(command)) {
     console.log(HELP);
@@ -179,6 +195,7 @@ async function main(argv: string[]): Promise<number> {
       "models",
       "profiles",
       "context",
+      "skills",
     ].includes(command)
   ) {
     throw new Error(`Comando desconocido: ${command}. Usa --help.`);
@@ -192,6 +209,12 @@ async function main(argv: string[]): Promise<number> {
   }
 
   const { config, path } = loadConfig(process.cwd(), configFile);
+  if (command === "skills") {
+    if (rest.length !== 1 || rest[0] !== "list")
+      throw new Error("Uso: agent-lab skills list");
+    console.log(JSON.stringify(listProjectSkills(process.cwd()), null, 2));
+    return 0;
+  }
   if (command === "context") {
     if (rest.length) throw new Error("context no acepta argumentos");
     console.log(JSON.stringify(inspectProjectContext(process.cwd()), null, 2));
@@ -256,6 +279,7 @@ async function main(argv: string[]): Promise<number> {
             session,
             context,
             process.cwd(),
+            skills,
           ),
           cwd: process.cwd(),
         },
@@ -266,7 +290,7 @@ async function main(argv: string[]): Promise<number> {
     return 0;
   }
   return mode === "print"
-    ? runPi(prompt, config, process.cwd(), selection, session, context)
+    ? runPi(prompt, config, process.cwd(), selection, session, context, skills)
     : runPiJson(
         prompt,
         config,
@@ -275,6 +299,7 @@ async function main(argv: string[]): Promise<number> {
         selection,
         session,
         context,
+        skills,
       );
 }
 

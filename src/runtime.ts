@@ -8,6 +8,8 @@ import { buildSessionArgs } from './session-options.js';
 import type { SessionOptions } from './session-options.js';
 import { buildContextArgs } from './context-options.js';
 import type { ContextOptions } from './context-options.js';
+import { buildSkillArgs } from './skill-options.js';
+import type { SkillOptions } from './skill-options.js';
 
 // Windows: la instalación administrada puede exponer pi.cmd y pi-launcher.js.
 // Evita shell:true y conserva los argumentos como datos.
@@ -30,10 +32,11 @@ export type PiMode = 'print' | 'json';
 export type JsonView = 'summary' | 'events' | 'tools';
 
 /** Mismo contrato de configuración de Lección 1, ahora con elección de modo. */
-export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, cwd = process.cwd()): string[] {
+export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, cwd = process.cwd(), skills: SkillOptions = {}): string[] {
   const args = mode === 'print' ? ['--print'] : ['--mode', 'json'];
   args.push(...buildSessionArgs(config, session));
   args.push(...buildContextArgs(cwd, context));
+  args.push(...buildSkillArgs(cwd, skills));
   if (config.pi.disableMcp) args.push('--no-mcp');
   if (config.pi.disableExtensions) args.push('--no-extensions');
   args.push('--tools', config.pi.tools.join(','));
@@ -45,8 +48,8 @@ export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode 
 }
 
 /** Print sigue funcionando sin cambios para preservar compatibilidad. */
-export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'print', selection, session, context, cwd);
+export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, skills: SkillOptions = {}): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'print', selection, session, context, cwd, skills);
   return await new Promise<number>((resolve, reject) => {
     const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {
@@ -76,8 +79,8 @@ export async function runPi(prompt: string, config: HarnessConfig, cwd: string, 
  * JSONL de una única invocación. Sólo se separa por LF (NO node:readline).
  * En modo events, stdout queda reservado a registros JSONL válidos.
  */
-export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'json', selection, session, context, cwd);
+export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, skills: SkillOptions = {}): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'json', selection, session, context, cwd, skills);
   return await new Promise<number>((resolve, reject) => {
     const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {
