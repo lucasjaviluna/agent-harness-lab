@@ -1,3 +1,14 @@
+## v0.11.0 — Módulo 2 · Lección 6 (Lección global 11) — Codemode y Tool Search
+
+- CLI `--tools <csv>` por ejecución, con validación de allowlist explícita y sin cambios de defaults.
+- Config de ejemplo optativa para activar extensiones integradas `codemode` y `tool_search`.
+- Custom Tools `lab_project_facts` (exposure `codemode`) y `lab_test_inventory` (exposure `deferred`).
+- Núcleo puro de solo lectura y pruebas contra una API simulada de Pi.
+- Política del guard ampliada para permitir estas herramientas mientras mantiene bloqueo de escrituras peligrosas y shell.
+- Ejercicio US-LAB-011 (`--exclude-tools`) con solución y tests separados.
+- Compatibilidad de Windows: `piCommand()` y `shell:false` preservados; tests previos intactos.
+- No es un sandbox: codemode puede solicitar herramientas anidadas, sujetas a políticas y permisos del proceso.
+
 ## v0.10.0 — Módulo 2 · Lección 5 (Lección global 10) — TUI
 
 - Extensión `.pi/extensions/operator-ui.ts`: dashboard opt-in, encabezado, estado, widget, footer opcional y panel interactivo.

@@ -12,6 +12,8 @@ import { buildSkillArgs } from './skill-options.js';
 import type { SkillOptions } from './skill-options.js';
 import { buildExtensionArgs } from './extension-options.js';
 import type { ExtensionOptions } from './extension-options.js';
+import { effectiveTools } from './tool-selection.js';
+import type { ToolSelectionOptions } from './tool-selection.js';
 
 // Windows: la instalación administrada puede exponer pi.cmd y pi-launcher.js.
 // Evita shell:true y conserva los argumentos como datos.
@@ -34,7 +36,7 @@ export type PiMode = 'print' | 'json';
 export type JsonView = 'summary' | 'events' | 'tools';
 
 /** Mismo contrato de configuración de Lección 1, ahora con elección de modo. */
-export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, cwd = process.cwd(), skills: SkillOptions = {}, extensions: ExtensionOptions = {}): string[] {
+export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode = 'print', selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, cwd = process.cwd(), skills: SkillOptions = {}, extensions: ExtensionOptions = {}, toolSelection: ToolSelectionOptions = {}): string[] {
   const args = mode === 'print' ? ['--print'] : ['--mode', 'json'];
   args.push(...buildSessionArgs(config, session));
   args.push(...buildContextArgs(cwd, context));
@@ -42,7 +44,7 @@ export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode 
   args.push(...buildExtensionArgs(cwd, extensions));
   if (config.pi.disableMcp) args.push('--no-mcp');
   if (config.pi.disableExtensions || extensions.noExtensions) args.push('--no-extensions');
-  args.push('--tools', config.pi.tools.join(','));
+  args.push('--tools', effectiveTools(config, toolSelection).join(','));
   if (selection.model) args.push('--model', selection.model);
   if (selection.provider) args.push('--provider', selection.provider);
   if (selection.thinking) args.push('--thinking', selection.thinking);
@@ -51,8 +53,8 @@ export function buildPiArgs(prompt: string, config: HarnessConfig, mode: PiMode 
 }
 
 /** Print sigue funcionando sin cambios para preservar compatibilidad. */
-export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, skills: SkillOptions = {}, extensions: ExtensionOptions = {}): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'print', selection, session, context, cwd, skills, extensions);
+export async function runPi(prompt: string, config: HarnessConfig, cwd: string, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, skills: SkillOptions = {}, extensions: ExtensionOptions = {}, toolSelection: ToolSelectionOptions = {}): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'print', selection, session, context, cwd, skills, extensions, toolSelection);
   return await new Promise<number>((resolve, reject) => {
     const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {
@@ -82,8 +84,8 @@ export async function runPi(prompt: string, config: HarnessConfig, cwd: string, 
  * JSONL de una única invocación. Sólo se separa por LF (NO node:readline).
  * En modo events, stdout queda reservado a registros JSONL válidos.
  */
-export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, skills: SkillOptions = {}, extensions: ExtensionOptions = {}): Promise<number> {
-  const args = buildPiArgs(prompt, config, 'json', selection, session, context, cwd, skills, extensions);
+export async function runPiJson(prompt: string, config: HarnessConfig, cwd: string, view: JsonView, selection: ModelSelection = config.pi, session: SessionOptions = {}, context: ContextOptions = {}, skills: SkillOptions = {}, extensions: ExtensionOptions = {}, toolSelection: ToolSelectionOptions = {}): Promise<number> {
+  const args = buildPiArgs(prompt, config, 'json', selection, session, context, cwd, skills, extensions, toolSelection);
   return await new Promise<number>((resolve, reject) => {
     const invocation = piCommand(config.pi.executable, args, cwd);
     const child = spawn(invocation.command, invocation.args, {

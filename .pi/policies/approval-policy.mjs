@@ -8,7 +8,7 @@ import { readFileSync, realpathSync, lstatSync } from 'node:fs';
 import { join, isAbsolute, relative, resolve, sep, win32 } from 'node:path';
 
 export const POLICY_FILE = '.pi/policies/tool-approvals.json';
-const SAFE_TOOLS = new Set(['read', 'ls', 'find', 'grep', 'lab_workspace_report']);
+const SAFE_TOOLS = new Set(['read', 'ls', 'find', 'grep', 'lab_workspace_report', 'codemode', 'tool_search', 'lab_project_facts', 'lab_test_inventory']);
 const CHANGING_TOOLS = new Set(['write', 'edit']);
 const PROTECTED = new Set(['.git', '.pi', '.agents', 'node_modules', 'dist']);
 const TOOL_NAME = /^[a-z][a-z0-9_-]{0,79}$/;

@@ -22,8 +22,10 @@ import { listProjectSkills } from "./skills-report.js";
 import type { SkillOptions } from "./skill-options.js";
 import type { ExtensionOptions } from "./extension-options.js";
 import { listProjectExtensions } from "./extensions-report.js";
+import { parseToolList } from "./tool-selection.js";
+import type { ToolSelectionOptions } from "./tool-selection.js";
 
-const HELP = `Agent Harness Lab v0.7.0 — Módulo 2 / Lección 2
+const HELP = `Agent Harness Lab v0.11.0 — Módulo 2 / Lección 6
 
 Uso:
   agent-lab doctor [--config archivo.json]
@@ -36,6 +38,8 @@ Uso:
   agent-lab run "prompt" [--mode print|json] [--view summary|events|tools]
             [--profile nombre] [--model id] [--provider id] [--thinking nivel] [--dry-run]
   agent-lab run-file archivo.md [opciones de run]
+  Opciones de herramientas (run / run-file):
+    --tools read,grep,find,ls,codemode,tool_search (allowlist explícito)
   Opciones de contexto (run / run-file):
     --append-instructions <archivo.md> (repetible)  --no-context-files
   Opciones de skills (run / run-file):
@@ -68,6 +72,7 @@ interface ParsedArgs {
   context: ContextOptions;
   skills: SkillOptions;
   extensions: ExtensionOptions;
+  toolSelection: ToolSelectionOptions;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -82,6 +87,7 @@ function parseArgs(argv: string[]): ParsedArgs {
   const context: ContextOptions = {};
   const skills: SkillOptions = {};
   const extensions: ExtensionOptions = {};
+  const toolSelection: ToolSelectionOptions = {};
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i];
     if (
@@ -100,13 +106,19 @@ function parseArgs(argv: string[]): ParsedArgs {
         "--append-instructions",
         "--skill",
         "--extension",
+        "--tools",
       ].includes(token)
     ) {
       const value = argv[++i];
       if (!value || value.startsWith("--"))
         throw new Error(`${token} requiere un valor`);
       if (token === "--config") configFile = value;
-      else if (token === "--extension") {
+      else if (token === "--tools") {
+        if (toolSelection.tools)
+          throw new Error("--tools sólo puede indicarse una vez");
+        toolSelection.tools = parseToolList(value);
+        runOnlyFlags.push(token);
+      } else if (token === "--extension") {
         (extensions.paths ??= []).push(value);
         runOnlyFlags.push(token);
       } else if (token === "--skill") {
@@ -180,6 +192,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     context,
     skills,
     extensions,
+    toolSelection,
   };
 }
 
@@ -197,6 +210,7 @@ async function main(argv: string[]): Promise<number> {
     context,
     skills,
     extensions,
+    toolSelection,
   } = parseArgs(argv);
   if (["--help", "-h", "help"].includes(command)) {
     console.log(HELP);
@@ -304,6 +318,7 @@ async function main(argv: string[]): Promise<number> {
             process.cwd(),
             skills,
             extensions,
+            toolSelection,
           ),
           cwd: process.cwd(),
         },
@@ -323,6 +338,7 @@ async function main(argv: string[]): Promise<number> {
         context,
         skills,
         extensions,
+        toolSelection,
       )
     : runPiJson(
         prompt,
@@ -334,6 +350,7 @@ async function main(argv: string[]): Promise<number> {
         context,
         skills,
         extensions,
+        toolSelection,
       );
 }
 

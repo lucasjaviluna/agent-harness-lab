@@ -1,3 +1,13 @@
+## Módulo 2 · Lección 6 — Codemode y Tool Search (v0.11.0)
+
+- [Lección completa](LECCION_11.md)
+- **Ejecución optativa**: `node dist/cli.js --config examples/config/harness.codemode.example.json run-file examples/prompts/codemode-lab.md --dry-run`
+- `--tools read,grep,codemode,tool_search` configura solo la ejecución, sin alterar `harness.config.json`.
+- `.pi/extensions/tool-catalog.ts` registra dos herramientas de exposición diferente.
+- `npm test` valida la configuración, el catálogo y la política de herramientas; Pi real no se ejecuta sin credenciales.
+
+---
+
 # Agent Harness Lab — v0.10.0
 
 **Módulo 2 · Lección 5 (Lección global 10): Personalización de la TUI de Pi**

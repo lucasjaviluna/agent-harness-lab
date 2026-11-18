@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: TUI de Pi con panel de operador, widgets y diálogos",
+  "description": "Laboratorio incremental: codemode, tool_search y exposición dinámica de herramientas",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },
