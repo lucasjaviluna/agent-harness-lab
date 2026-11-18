@@ -25,7 +25,7 @@ import { listProjectExtensions } from "./extensions-report.js";
 import { parseToolList } from "./tool-selection.js";
 import type { ToolSelectionOptions } from "./tool-selection.js";
 
-const HELP = `Agent Harness Lab v0.11.0 — Módulo 2 / Lección 6
+const HELP = `Agent Harness Lab v0.12.0 — Módulo 3 / Lección 1
 
 Uso:
   agent-lab doctor [--config archivo.json]

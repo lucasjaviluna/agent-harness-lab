@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "lab_stories": {
+      "command": "node",
+      "args": ["examples/mcp/server.mjs"],
+      "cwd": ".",
+      "timeout": 10,
+      "exposure": "direct",
+      "description": "Historias ficticias de solo lectura para el laboratorio"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "pi": {
+    "executable": "pi",
+    "tools": ["mcp__lab_stories__get_story"],
+    "noSession": true,
+    "disableMcp": false,
+    "disableExtensions": false
+  },
+  "execution": { "timeoutMs": 120000 }
+}

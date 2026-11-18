@@ -1,3 +1,15 @@
+# Agent Harness Lab — v0.12.0
+
+**Módulo 3 · Lección 1 (global 12): MCP y herramientas externas** — Avanzado, complejidad Alta.
+
+- [Lección completa](LECCION_12.md)
+- `node examples/mcp/probe.mjs` prueba el servidor didáctico por stdio sin Pi ni tokens.
+- MCP nativo de Pi: activación manual revisada desde `examples/mcp/mcp.example.json` y política opt-in por nombre exacto. Defaults no cambian.
+- `npm test` y `npm run typecheck` verifican la integración. La variante SDK se instala y verifica por separado; el servidor didáctico no es producción.
+- Revisar y combinar las configuraciones locales, no sobrescribirlas; ver límites de seguridad en la lección.
+
+---
+
 ## Módulo 2 · Lección 6 — Codemode y Tool Search (v0.11.0)
 
 - [Lección completa](LECCION_11.md)

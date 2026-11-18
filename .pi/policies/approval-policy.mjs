@@ -18,7 +18,7 @@ export function parsePolicy(value) {
     throw new Error('La política debe ser un objeto JSON');
   }
   const keys = Object.keys(value);
-  if (keys.some(key => !['version', 'bash', 'denyTools', 'askTools'].includes(key))) {
+  if (keys.some(key => !['version', 'bash', 'denyTools', 'askTools', 'allowMcpTools'].includes(key))) {
     throw new Error('La política contiene campos desconocidos');
   }
   if (value.version !== 1) throw new Error('version debe ser 1');
@@ -37,7 +37,12 @@ export function parsePolicy(value) {
   if (['read', 'ls', 'find', 'grep', 'write', 'edit', 'bash'].some(n => askTools.has(n))) {
     throw new Error('askTools sólo admite herramientas adicionales; las integradas tienen reglas fijas');
   }
-  return { bash: value.bash, denyTools, askTools };
+  // Opt-in exacto. No se infieren permisos de las anotaciones del servidor.
+  const allowMcpTools = value.allowMcpTools === undefined ? new Set() : asSet('allowMcpTools');
+  if ([...allowMcpTools].some(name => !/^mcp__[a-z0-9_]+__[a-z0-9_]+$/.test(name))) {
+    throw new Error('allowMcpTools sólo acepta nombres MCP exactos');
+  }
+  return { bash: value.bash, denyTools, askTools, allowMcpTools };
 }
 
 export function loadPolicy(cwd) {
@@ -112,6 +117,7 @@ export function decideToolCall(cwd, toolName, input, policy) {
       : { action: 'deny', reason: 'Shell deshabilitado en esta política' };
   }
   if (policy.askTools.has(toolName)) return { action: 'ask', target: toolName, reason: 'Herramienta adicional' };
+  if (policy.allowMcpTools?.has(toolName)) return { action: 'allow' };
   if (SAFE_TOOLS.has(toolName)) return { action: 'allow' };
   return { action: 'deny', reason: 'Herramienta desconocida: no incluida en la política' };
 }

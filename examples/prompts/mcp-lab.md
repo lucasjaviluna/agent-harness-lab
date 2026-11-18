@@ -1,0 +1,1 @@
+Usá exclusivamente la herramienta MCP mcp__lab_stories__get_story para recuperar US-101. Informá el título, estado y criterios de aceptación. No inventes datos si la herramienta falla. No uses shell ni modifiques archivos.

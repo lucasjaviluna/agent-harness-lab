@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "bash": "deny",
+  "denyTools": [],
+  "askTools": [],
+  "allowMcpTools": ["mcp__lab_stories__get_story"]
+}

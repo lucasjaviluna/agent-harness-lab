@@ -1,3 +1,11 @@
+## v0.12.0 — Módulo 3 · Lección 1 (global 12) — MCP
+
+- Servidor stdio didáctico de historias ficticias con protocolo clásico; probe sin tokens y variante SDK oficial optativa.
+- Configuración MCP de ejemplo, prompt y opt-in explícito de policy `allowMcpTools` (default deny, nombres exactos, deny/ask ganan).
+- MCP y extensiones siguen deshabilitados en configuración base. Sin cliente MCP nuevo ni cambios a `src/runtime.ts` o al launcher de Windows.
+- Once pruebas nuevas; ejercicio `list_stories` con tres tests separados. Pi real, SDK y Windows pendientes de comprobación.
+- Base: snapshot v0.11.0 de la Lección 11; main remoto revisado aún en v0.10.0.
+
 ## v0.11.0 — Módulo 2 · Lección 6 (Lección global 11) — Codemode y Tool Search
 
 - CLI `--tools <csv>` por ejecución, con validación de allowlist explícita y sin cambios de defaults.
