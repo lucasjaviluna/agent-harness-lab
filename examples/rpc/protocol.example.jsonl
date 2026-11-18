@@ -1,0 +1,8 @@
+{"id":"req-1","type":"get_state"}
+{"id":"req-1","type":"response","command":"get_state","success":true,"data":{"messageCount":0}}
+{"id":"req-2","type":"prompt","message":"Hola"}
+{"id":"req-2","type":"response","command":"prompt","success":true,"data":{"disposition":"started"}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_delta","delta":"Hola"}}
+{"type":"message_end","message":{"role":"assistant","stopReason":"stop","content":[{"type":"text","text":"Hola"}]}}
+{"type":"agent_end"}
+{"type":"agent_settled","aborted":false}

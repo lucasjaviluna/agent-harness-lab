@@ -17,7 +17,7 @@ import type { ToolSelectionOptions } from './tool-selection.js';
 
 // Windows: la instalación administrada puede exponer pi.cmd y pi-launcher.js.
 // Evita shell:true y conserva los argumentos como datos.
-function piCommand(executable: string, args: string[], cwd: string): { command: string; args: string[] } {
+export function piCommand(executable: string, args: string[], cwd: string): { command: string; args: string[] } {
   if (process.platform === 'win32') {
     const hasPath = /[\\/]/.test(executable);
     const name = executable.split(/[\\/]/).pop()?.toLowerCase();

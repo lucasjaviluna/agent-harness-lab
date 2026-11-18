@@ -1,0 +1,7 @@
+[
+  {"id":"doc-cqrs","source":"lab:architecture/cqrs","text":"En el ejemplo ficticio, CQRS separa Commands de Queries. Los Handlers encapsulan casos de uso; un Pipeline Behavior valida antes de ejecutar el Handler."},
+  {"id":"doc-windows","source":"lab:architecture/runtime","text":"El laboratorio utiliza pi-launcher.js en Windows y spawn con shell false; los argumentos se pasan como datos."},
+  {"id":"doc-testing","source":"lab:engineering/tests","text":"Los tests de integración simulan Pi como proceso independiente. Las pruebas unitarias validan la lógica del agente sin consumir tokens."},
+  {"id":"doc-mcp","source":"lab:architecture/mcp","text":"MCP conecta clientes y servidores mediante stdio o Streamable HTTP. Las herramientas externas requieren autorización explícita de configuración."},
+  {"id":"doc-rag","source":"lab:architecture/rag","text":"El motor documental RAG combina búsqueda léxica y semántica, recupera chunks con procedencia y aplica reranking antes de entregar contexto."}
+]

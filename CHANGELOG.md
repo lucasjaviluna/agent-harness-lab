@@ -1,3 +1,20 @@
+## v0.15.0 — Módulo 3 · Lección 4 (global 15) — Context Engineering y memoria
+
+- Proveedor local de memoria léxica: top-k, presupuesto UTF-8, fuentes, deduplicación, almacenamiento acotado single-writer y semilla ficticia.
+- Extensión opt-in `memory-context.ts`: precarga en `before_agent_start`; captura explícita tras `agent_before_settle` / `agent_settled`, sin aprobar automáticamente herramientas. Escritura deshabilitada por defecto.
+- `.lab-memory` se ignora en Git y se protege contra `write`/`edit` cuando el guard está activo. No es sandbox ni DLP.
+- Ejemplo CLI offline `memory:search`, configuración con MCP y discovery apagados, guía de futura integración externa sin red en el lab.
+- US-LAB-015: umbral de relevancia; solución y tests separados. CLI/SDK y launcher Windows sin cambios. Corrección puntual de carrera RPC: esperar ACK de abort antes de invalidar cliente; test de regresión con ACK tardío.
+- 205 pruebas aprobadas, una omitida por plataforma; 209 aprobadas con solución. Base snapshot v0.14.0; main remoto v0.13.0. Verificación Pi real/Windows pendiente.
+
+## v0.14.0 — Módulo 3 · Lección 3 (global 14) — RPC
+
+- Cliente RPC didáctico, framing UTF-8/JSONL, correlación por UUID, un prompt activo, estado/reinicio/abort y cierre acotado.
+- Runner optativo `rpc:run`, sesión efímera, herramientas deshabilitadas por defecto; ejemplo del cliente oficial de Pi.
+- Diálogos RPC cancelados por defecto, sin aprobación automática. El cliente no implementa sandbox ni ejecuta comandos RPC arbitrarios.
+- 22 pruebas nuevas y ejercicio de estadísticas con tres tests separados. Reutiliza `piCommand()` sin cambiar su cuerpo; CLI y SDK previos sin cambios.
+- Base snapshot v0.13.0, main remoto v0.13.0. Validación real con Pi/Windows pendiente.
+
 ## v0.13.0 — Módulo 3 · Lección 2 (global 13) — Pi SDK
 
 - Runner TypeScript con sesiones reutilizables, streaming opt-in, contadores y cancelación cooperativa.
