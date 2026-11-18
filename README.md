@@ -273,3 +273,13 @@ npm run sdk:tool
 ```
 
 Se requiere Node >= 22.19 y proveedor configurado. El runner usa sesión en memoria y no habilita herramientas por defecto; `--read-only` habilita solamente tools de consulta (no sandbox). No importa automáticamente los perfiles ni el Approval Guard anteriores. `--stream` escribe deltas en stderr. La prueba de SDK real requiere instalar el paquete y autenticar un proveedor; los tests del núcleo usan una sesión simulada.
+
+## Lección 14 — RPC
+
+Consulta [LECCION_14.md](LECCION_14.md) y [examples/rpc/README.md](examples/rpc/README.md).
+
+```powershell
+npm run rpc:run -- "Proyecto ficticio Atlas" "¿Cómo se llama el proyecto?"
+```
+
+Cliente mínimo de aprendizaje, sin sustituir el CLI ni el SDK. Las sesiones RPC son efímeras y sin herramientas por defecto. No es sandbox. Usar Pi autenticado en un workspace de prueba. Para clientes TypeScript de propósito general, evaluar el `RpcClient` oficial.

@@ -1,3 +1,11 @@
+## v0.14.0 — Módulo 3 · Lección 3 (global 14) — RPC
+
+- Cliente RPC didáctico, framing UTF-8/JSONL, correlación por UUID, un prompt activo, estado/reinicio/abort y cierre acotado.
+- Runner optativo `rpc:run`, sesión efímera, herramientas deshabilitadas por defecto; ejemplo del cliente oficial de Pi.
+- Diálogos RPC cancelados por defecto, sin aprobación automática. El cliente no implementa sandbox ni ejecuta comandos RPC arbitrarios.
+- 22 pruebas nuevas y ejercicio de estadísticas con tres tests separados. Reutiliza `piCommand()` sin cambiar su cuerpo; CLI y SDK previos sin cambios.
+- Base snapshot v0.13.0, main remoto v0.13.0. Validación real con Pi/Windows pendiente.
+
 ## v0.13.0 — Módulo 3 · Lección 2 (global 13) — Pi SDK
 
 - Runner TypeScript con sesiones reutilizables, streaming opt-in, contadores y cancelación cooperativa.

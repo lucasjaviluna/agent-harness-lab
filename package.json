@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: ejecuci\u00f3n program\u00e1tica mediante Pi SDK",
+  "description": "Laboratorio incremental: cliente RPC y comunicación entre procesos",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },
@@ -14,7 +14,8 @@
     "start": "node dist/cli.js",
     "sdk:run": "node --experimental-strip-types examples/sdk/run.ts",
     "sdk:typecheck": "tsc -p examples/sdk/tsconfig.json",
-    "sdk:tool": "node --experimental-strip-types examples/sdk/custom-tool.example.ts"
+    "sdk:tool": "node --experimental-strip-types examples/sdk/custom-tool.example.ts",
+    "rpc:run": "npm run build --silent && node dist/rpc-cli.js"
   },
   "engines": {
     "node": ">=22.19.0"
