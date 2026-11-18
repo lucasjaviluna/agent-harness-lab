@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: MCP nativo y herramientas externas",
+  "description": "Laboratorio incremental: ejecuci\u00f3n program\u00e1tica mediante Pi SDK",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },
@@ -11,7 +11,10 @@
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "start": "node dist/cli.js"
+    "start": "node dist/cli.js",
+    "sdk:run": "node --experimental-strip-types examples/sdk/run.ts",
+    "sdk:typecheck": "tsc -p examples/sdk/tsconfig.json",
+    "sdk:tool": "node --experimental-strip-types examples/sdk/custom-tool.example.ts"
   },
   "engines": {
     "node": ">=22.19.0"

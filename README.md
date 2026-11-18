@@ -259,3 +259,17 @@ node dist/cli.js run "Analiza el repositorio" --extension .pi/extensions/lifecyc
 - Para ver `/lab-stats`, iniciá `pi --no-extensions -e .pi/extensions/lifecycle-observer.ts` en una sesión interactiva.
 - Leer `LECCION_07.md` y el ejercicio resuelto en `solutions/modulo-02-leccion-02/`.
 - No se altera el lanzador ni los tests específicos de Windows.
+
+
+## Lección 13 — Pi SDK (opt-in)
+
+Ver [LECCION_13.md](LECCION_13.md). El CLI anterior sigue disponible. El SDK vive en un paquete separado y no se carga automáticamente.
+
+```sh
+npm install --prefix examples/sdk --ignore-scripts
+npm run sdk:typecheck
+npm run sdk:run -- "Mi proyecto ficticio se llama Nebula" "¿Cómo se llama?"
+npm run sdk:tool
+```
+
+Se requiere Node >= 22.19 y proveedor configurado. El runner usa sesión en memoria y no habilita herramientas por defecto; `--read-only` habilita solamente tools de consulta (no sandbox). No importa automáticamente los perfiles ni el Approval Guard anteriores. `--stream` escribe deltas en stderr. La prueba de SDK real requiere instalar el paquete y autenticar un proveedor; los tests del núcleo usan una sesión simulada.

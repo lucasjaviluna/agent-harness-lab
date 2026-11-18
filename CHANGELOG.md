@@ -1,3 +1,11 @@
+## v0.13.0 — Módulo 3 · Lección 2 (global 13) — Pi SDK
+
+- Runner TypeScript con sesiones reutilizables, streaming opt-in, contadores y cancelación cooperativa.
+- Paquete de ejemplo independiente con Pi SDK 1.5.2; modelo exacto y tool allowlist sin escritura por defecto.
+- Demostración de Custom Tool vía SDK y referencia de extensiones inline/MCP; MCP desactivado en runner.
+- Doce tests nuevos y ejercicio con dos tests separados. CLI y Windows launcher intactos.
+- Base snapshot v0.12.0; main remoto consultado en v0.11.0. SDK real pendiente por DNS/npm y Node local inferior al mínimo.
+
 ## v0.12.0 — Módulo 3 · Lección 1 (global 12) — MCP
 
 - Servidor stdio didáctico de historias ficticias con protocolo clásico; probe sin tokens y variante SDK oficial optativa.
