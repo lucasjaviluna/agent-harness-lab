@@ -1,0 +1,1 @@
+{"id":"US-202","description":"Agregar filtros por estado y paginación a la lista de beneficios.","scope":"feature","acceptanceCriteria":["Se puede filtrar por estado","La página se reinicia al cambiar el filtro","Se contempla prueba E2E"],"risks":{"security":false,"dataMigration":false,"breakingChange":false,"crossRepo":false}}

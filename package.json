@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: recuperación de contexto y memoria agéntica",
+  "description": "Laboratorio incremental: workflows, clasificación y routing",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },
@@ -16,7 +16,8 @@
     "sdk:typecheck": "tsc -p examples/sdk/tsconfig.json",
     "sdk:tool": "node --experimental-strip-types examples/sdk/custom-tool.example.ts",
     "rpc:run": "npm run build --silent && node dist/rpc-cli.js",
-    "memory:search": "node examples/memory/search.mjs"
+    "memory:search": "node examples/memory/search.mjs",
+    "workflow:run": "npm run build --silent && node dist/workflow-cli.js"
   },
   "engines": {
     "node": ">=22.19.0"

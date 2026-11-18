@@ -1,0 +1,1 @@
+{"id":"US-203","description":"Modificar el contrato de perfiles entre frontend y backend con migración de datos.","scope":"cross-cutting","acceptanceCriteria":["Mantener compatibilidad durante el despliegue","Definir rollback","Incluir validaciones y E2E"],"risks":{"security":false,"dataMigration":true,"breakingChange":true,"crossRepo":true}}

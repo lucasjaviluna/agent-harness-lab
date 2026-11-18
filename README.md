@@ -297,3 +297,15 @@ npm run rpc:run -- "Proyecto ficticio Atlas" "¿Cómo se llama el proyecto?"
 ```
 
 Cliente mínimo de aprendizaje, sin sustituir el CLI ni el SDK. Las sesiones RPC son efímeras y sin herramientas por defecto. No es sandbox. Usar Pi autenticado en un workspace de prueba. Para clientes TypeScript de propósito general, evaluar el `RpcClient` oficial.
+
+## Lección 16 — Workflows
+
+Ver [LECCION_16.md](LECCION_16.md) y [examples/workflows/README.md](examples/workflows/README.md).
+
+```bash
+npm run workflow:run -- --story examples/workflows/simple.json
+npm run workflow:run -- --story examples/workflows/medium.json --mode simulate --decision approve
+npm run workflow:run -- --story examples/workflows/complex.json --mode simulate --decision deny
+```
+
+Clasificación determinista y escalamiento opcional, tres rutas, etapas, gates y artefactos textuales. `plan` es offline y `simulate` no usa Pi. `live` es opt-in con Pi RPC sin herramientas ni discovery, y gates humanos por TTY; no ejecuta cambios ni pruebas. `--memory` puede recuperar contexto pero no escribe. No es sandbox ni evidencia persistente. El patch conserva el CLI, SDK, RPC y launcher previos.

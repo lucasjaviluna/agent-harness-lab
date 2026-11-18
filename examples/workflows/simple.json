@@ -1,0 +1,1 @@
+{"id":"US-201","description":"Corregir el texto del botón de cancelar en el formulario de perfil.","scope":"localized","acceptanceCriteria":["El botón muestra Cancelar","No se modifica el comportamiento"],"risks":{"security":false,"dataMigration":false,"breakingChange":false,"crossRepo":false}}

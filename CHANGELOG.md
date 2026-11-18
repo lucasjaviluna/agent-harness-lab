@@ -1,3 +1,12 @@
+## v0.16.0 — Módulo 3 · Lección 5 (global 16) — Workflows
+
+- Story Classifier determinista: señales declaradas, incertidumbre y escalamiento conservador; sugerencia LLM sólo puede elevar.
+- Router secuencial con tres rutas y gates de especificación/plan obligatorios. Configuración adicional de instrucciones, sin alterar invariantes.
+- CLI opt-in `workflow:run`: plan/simulate offline, live con Pi RPC sin herramientas, nueva sesión por etapa y autorizaciones TTY; no realiza cambios de código reales.
+- Recuperación acotada de memoria L15 por opt-in, sin escritura; perfiles de modelo reutilizados en live.
+- Resultados en memoria, estados y pasos omitidos; no auditoría durable. US-LAB-016: aprobación final opcional y solución separada.
+- 227 tests superados, 1 omitido; 231 superados con solución. Node 22.16 (mínimo declarado 22.19), Pi autenticado y Windows nativo pendientes. Snapshot v0.15.0, main remoto v0.15.0; no tocar CLI, launcher ni memoria propia del usuario.
+
 ## v0.15.0 — Módulo 3 · Lección 4 (global 15) — Context Engineering y memoria
 
 - Proveedor local de memoria léxica: top-k, presupuesto UTF-8, fuentes, deduplicación, almacenamiento acotado single-writer y semilla ficticia.
