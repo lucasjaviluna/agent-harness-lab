@@ -72,6 +72,7 @@
 - No se alteraron la ejecución de Pi en Windows, los procesos sin shell, ni el Agent Loop.
 
 ## v0.7.0 — Módulo 2 / Lección 2 — Extensiones TypeScript
+
 - `agent-lab extensions list`: inventario read-only de extensiones locales `.pi/extensions`.
 - `--extension` repetible y `--no-extensions` en `run` / `run-file`. Pi conserva carga y confianza.
 - `lifecycle-observer.ts` registra eventos (`session_start`, `agent_start`, `tool_execution_end`, `agent_settled`, `session_shutdown`) y el comando `/lab-stats`.
@@ -82,6 +83,7 @@
 - El main publicado se encontró en v0.5.0; el patch se entrega sobre el snapshot v0.6.0.
 
 ## v0.6.0 — Módulo 2 / Lección 1 — Skills
+
 - `agent-lab skills list`: informe read-only de Skills locales del proyecto (`.agents/skills`, `.pi/skills`), sin sustituir el descubrimiento de Pi.
 - `--skill` repetible y `--no-skills` en `run` y `run-file`, delegados a los flags nativos de Pi.
 - Validación de rutas explícitas (directorio con `SKILL.md` o archivo `SKILL.md`).
@@ -107,7 +109,7 @@
 - Composición validada de flags de sesión: `--persist`, `--ephemeral`, `--continue`, `--session`, `--fork`, `--session-dir`, `--name`.
 - Persistencia **optativa**: no cambia el modo efímero que existía en v0.3.0.
 - Se reutiliza el SessionManager y almacenamiento JSONL de Pi sin implementar otro gestor.
--  Nuevos tests de regresión, conflictos, JSON/print, prompts especiales y compatibilidad de CLI.
+- Nuevos tests de regresión, conflictos, JSON/print, prompts especiales y compatibilidad de CLI.
 - Se **preservan** los cambios Windows: `pi-launcher.js`, `pi.cmd`, preload de tests y `shell:false`.
 - No se incorpora todavía compaction programática: se aprende mediante `/compact` en Pi.
 
@@ -138,7 +140,6 @@
 - Sin fallback automático entre modelos, enrutamiento por coste o discovery de capacidades propio.
 - Pi comprueba modelo, credenciales y soporte real de thinking en tiempo de ejecución.
 - Los perfiles no añaden políticas de seguridad ni sandbox.
-
 
 ## v0.2.0 — Módulo 1 · Lección 2 — 2026-10-27
 
