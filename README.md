@@ -1,3 +1,15 @@
+# Agent Harness Lab — v0.17.0
+
+**Módulo 4 · Lección 1 (global 17): Governance, aprobaciones, auditoría y evidencia** — Avanzado, complejidad muy alta.
+
+- [Lección completa](LECCION_17.md) y [laboratorio](examples/governance/README.md).
+- `npm run workflow:run -- --story examples/workflows/medium.json --mode simulate --governed --decision approve` ejecuta un flujo gobernado offline; la regresión del laboratorio es real.
+- `npm run evidence:verify -- RUN_ID_REAL` verifica integridad local de diario y artefactos. `.lab-evidence/` contiene textos potencialmente sensibles; no commitear. No es almacenamiento inmutable ni autentica al operador.
+- `--governed` en live requiere etiqueta `--operator` y aprobaciones TTY. Sólo propuesta textual vía RPC sin herramientas; no permite cambios de producto, SDD real ni merge. El modo normal conserva comportamiento anterior.
+- US-LAB-017: ancla SHA-256 externa; solución separada. `npm test` y `npm run typecheck`.
+
+---
+
 # Agent Harness Lab — v0.15.0
 
 **Módulo 3 · Lección 4 (global 15): Context Engineering, RAG y memoria agéntica** — Avanzado, complejidad Alta.

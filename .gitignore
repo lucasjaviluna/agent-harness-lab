@@ -12,3 +12,6 @@ sesiones-locales/
 
 # Memoria local: persistencia de decisiones, no distribuir ni commitear
 .lab-memory/
+
+# Evidencias locales: incluyen artefactos potencialmente sensibles
+.lab-evidence/

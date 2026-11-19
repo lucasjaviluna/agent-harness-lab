@@ -1,3 +1,10 @@
+## v0.17.0 — Módulo 4 · Lección 1 (global 17) — Governance
+
+- Política `proposal-only`, aprobaciones correlacionadas a UUID y digest SHA-256, gate final obligatorio en modo gobernado.
+- Diario JSONL, artefactos persistentes, hash chain, verificador de cierre, referencias y controles. Protección de `.lab-evidence` cuando guard activo; no certifica identidad ni inmutabilidad.
+- Control de calidad real acotado a `tests/workflow.test.mjs`, no verifica una implementación propuesta. Distingue simulate y live; no `--llm-classify` en modo gobernado.
+- 251 pruebas superadas, 1 omitida; 254 con solución anclada. Base snapshot v0.16.0, main remoto consultado v0.16.0. Node 22.16 inferior al mínimo 22.19. Pi autenticado/Windows pendientes. No se altera launcher, CLI principal, SDK ni cliente RPC.
+
 ## v0.16.0 — Módulo 3 · Lección 5 (global 16) — Workflows
 
 - Story Classifier determinista: señales declaradas, incertidumbre y escalamiento conservador; sugerencia LLM sólo puede elevar.

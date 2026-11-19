@@ -1,0 +1,2 @@
+Agent Harness Lab v0.17.0 — Lección 17. Base v0.16.0.
+Preferir patch (git apply --check antes) para preservar archivos propios; ZIP incremental sólo contiene archivos nuevos/modificados. No reemplazar tu repo por el snapshot completo. No copiar solutions al src salvo ejercicio. npm install, npm test, npm run typecheck. Node >=22.19. Ver LECCION_17.md y examples/governance/README.md. .lab-evidence contiene artefactos potencialmente sensibles y se ignora en Git. No se habilitan modificaciones autónomas del agente. Ver límites de auditoría y ejecución en la lección.
