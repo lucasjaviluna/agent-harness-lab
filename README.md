@@ -321,3 +321,7 @@ npm run workflow:run -- --story examples/workflows/complex.json --mode simulate 
 ```
 
 Clasificación determinista y escalamiento opcional, tres rutas, etapas, gates y artefactos textuales. `plan` es offline y `simulate` no usa Pi. `live` es opt-in con Pi RPC sin herramientas ni discovery, y gates humanos por TTY; no ejecuta cambios ni pruebas. `--memory` puede recuperar contexto pero no escribe. No es sandbox ni evidencia persistente. El patch conserva el CLI, SDK, RPC y launcher previos.
+
+## Lección 18 — SDD y OpenSpec (v0.18.0)
+
+Ver [LECCION_18.md](LECCION_18.md). `npm run sdd:run -- route examples/workflows/complex.json` recomienda SDD. `review`, `instructions` y `verify --approved <digest>` trabajan con el ejemplo local; Apply y Archive son manuales. Requieren OpenSpec instalado. El starter falla sus pruebas de producto intencionalmente.

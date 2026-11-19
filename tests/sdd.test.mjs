@@ -1,0 +1,28 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {cpSync,readFileSync,writeFileSync,mkdtempSync,rmSync,symlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {routeStory,sddArgs,checkStatus,checkValidation,taskProgress,snapshot,review,verify,executeProductTest,persistReceipt,makeNative,CHANGE} from '../dist/sdd.js';
+const fixture=resolve('examples/sdd/project');
+const pathOf=(cwd,p)=>join(cwd,'openspec','changes',CHANGE,p);
+const status=()=>({changeName:CHANGE,schemaName:'spec-driven',isPlanningComplete:true,artifacts:['proposal','specs','design','tasks'].map(id=>({id,status:'done'}))});
+const validation=()=>({items:[{id:CHANGE,type:'change',valid:true,issues:[]}]});
+const native=k=>k==='status'?status():validation();
+function sandbox(t){const root=mkdtempSync(join(tmpdir(),'sdd-')); t.after(()=>rmSync(root,{recursive:true,force:true}));const cwd=join(root,'project');cpSync(fixture,cwd,{recursive:true});return {root,cwd};}
+const complete=cwd=>{const p=pathOf(cwd,'tasks.md');writeFileSync(p,readFileSync(p,'utf8').replaceAll('- [ ]','- [x]'));};
+const solve=cwd=>cpSync('solutions/modulo-04-leccion-02/src/filter.mjs',join(cwd,'src/filter.mjs'));
+test('routes existing stories',()=>{for(const [f,r] of [['simple','direct'],['medium','planned'],['complex','sdd']])assert.equal(routeStory(JSON.parse(readFileSync(`examples/workflows/${f}.json`))).route,r);});
+test('native arguments allow only named operations',()=>{assert.deepEqual(sddArgs('validate'),['validate',CHANGE,'--type','change','--strict','--json','--no-interactive']);assert.throws(()=>sddArgs('archive'));assert.throws(()=>sddArgs('status','--help'));});
+test('status rejects incomplete planning and wrong change',()=>{assert.doesNotThrow(()=>checkStatus(status()));assert.throws(()=>checkStatus({...status(),isPlanningComplete:false}));assert.throws(()=>checkStatus({...status(),changeName:'other'}));});
+test('validation rejects warnings and empty results',()=>{assert.doesNotThrow(()=>checkValidation(validation()));assert.throws(()=>checkValidation({items:[]}));assert.throws(()=>checkValidation({items:[{...validation().items[0],issues:[{level:'WARNING'}]}]}));});
+test('task counts, malformed task rejected',()=>{assert.deepEqual(taskProgress('- [ ] one\n- [X] two'),{total:2,complete:1});assert.throws(()=>taskProgress('no tasks'));assert.throws(()=>taskProgress('- [x] one\n* [ ] two'));});
+test('checking tasks does not change approved plan',t=>{const {cwd}=sandbox(t);const b=snapshot(cwd);complete(cwd);const a=snapshot(cwd);assert.equal(a.digest,b.digest);assert.equal(a.progress.complete,3);});
+test('editing task text or adding artifacts invalidates approval',t=>{const {cwd}=sandbox(t);const b=snapshot(cwd);writeFileSync(pathOf(cwd,'tasks.md'),'- [x] new task');assert.notEqual(snapshot(cwd).digest,b.digest);writeFileSync(pathOf(cwd,'other.md'),'extra');assert.throws(()=>snapshot(cwd));});
+test('review rejects changed plan during native call',t=>{const {cwd}=sandbox(t);assert.throws(()=>review(cwd,k=>{if(k==='validate')writeFileSync(pathOf(cwd,'proposal.md'),'changed');return native(k);}),/cambió/);});
+test('verify rejects unfinished tasks and stale approval before tests',t=>{const {cwd}=sandbox(t);const b=review(cwd,native);assert.throws(()=>verify(cwd,b.digest,native,()=>assert.fail('test called')),/pendientes/);complete(cwd);assert.throws(()=>verify(cwd,'0'.repeat(64),native,()=>assert.fail('test called')),/cambió/);});
+test('real product suite fails before apply, even with marked tasks',t=>{const {cwd}=sandbox(t);const b=review(cwd,native);complete(cwd);const result=verify(cwd,b.digest,native);assert.equal(result.status,'failed');assert.notEqual(result.quality.exitCode,0);});
+test('exercise implementation passes real product suite and receipt is saved',t=>{const {cwd,root}=sandbox(t);const b=review(cwd,native);solve(cwd);complete(cwd);const result=verify(cwd,b.digest,native);assert.equal(result.status,'verified');assert.equal(result.quality.exitCode,0);const p=persistReceipt(root,result);assert.equal(JSON.parse(readFileSync(join(root,'.lab-evidence',p),'utf8')).approvedDigest,b.digest);});
+test('modified test cannot be accepted',t=>{const {cwd}=sandbox(t);const b=review(cwd,native);complete(cwd);writeFileSync(join(cwd,'tests/filter.test.mjs'),'');assert.throws(()=>verify(cwd,b.digest,native),/Suite/);});
+test('product mutation during test invalidates result',t=>{const {cwd}=sandbox(t);const b=review(cwd,native);complete(cwd);solve(cwd);assert.throws(()=>verify(cwd,b.digest,native,()=>{writeFileSync(join(cwd,'src/filter.mjs'),'changed');return {status:'passed',exitCode:0,outputHash:'a'.repeat(64)};}),/cambiaron/);});
+test('native adapter uses JS subprocess and rejects malformed JSON and nonzero exit',t=>{const {cwd,root}=sandbox(t);const entry=join(root,'fake.mjs');writeFileSync(entry,`console.log(JSON.stringify(${JSON.stringify(status())}));`);assert.doesNotThrow(()=>checkStatus(makeNative(cwd,entry)('status')));writeFileSync(entry,'console.log("bad")');assert.throws(()=>makeNative(cwd,entry)('status'),/JSON/);writeFileSync(entry,'process.exit(1)');assert.throws(()=>makeNative(cwd,entry)('status'),/falló/);});

@@ -10,7 +10,8 @@ export interface QualityResult {check:'workflow-regression';status:'passed'|'fai
 /** Ejecuta únicamente la suite fija de L16 del checkout confiable. No es un test del código propuesto. */
 export function runQualityCheck():QualityResult {
   const cwd=fileURLToPath(new URL('../',import.meta.url));const test=fileURLToPath(new URL('../tests/workflow.test.mjs',import.meta.url));
-  const start=performance.now();const r=spawnSync(process.execPath,['--test',test],{cwd,shell:false,timeout:20000,maxBuffer:1024*1024,windowsHide:true});
+  const env={...process.env};delete env.NODE_TEST_CONTEXT;delete env.NODE_OPTIONS;
+  const start=performance.now();const r=spawnSync(process.execPath,['--test',test],{cwd,env,shell:false,timeout:20000,maxBuffer:1024*1024,windowsHide:true});
   return {check:'workflow-regression',status:!r.error&&r.status===0?'passed':'failed',exitCode:r.status,elapsedMs:Math.round(performance.now()-start),outputHash:sha256(JSON.stringify({stdout:r.stdout?.toString('base64')??'',stderr:r.stderr?.toString('base64')??''}))};
 }
 export interface GovernedDeps extends Omit<WorkflowDeps,'approve'> {

@@ -193,3 +193,11 @@
 - CLI inicial `doctor`, `config`, `run` (print).
 - Configuración JSON validada, adaptador de proceso Pi y tests.
 - Ejercicio `run-file` incluido como solución separada.
+
+## v0.18.0 — Lección 18
+
+- Routing con clasificador L16 y adaptador OpenSpec acotado.
+- Revisión por digest del plan, validación estricta, suite de producto y recibo local.
+- Práctica Propose/Apply/Verify/Archive y solución de filtro de beneficios.
+- Corrección Quality Gate L17: eliminar NODE_TEST_CONTEXT y NODE_OPTIONS en proceso de tests hijo.
+- 14 tests nuevos, 265 aprobados, 1 omitido. OpenSpec real pendiente.

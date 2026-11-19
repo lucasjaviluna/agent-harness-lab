@@ -1,0 +1,2 @@
+# US-LAB-018 — solución
+Copiar `src/filter.mjs` de esta carpeta a `examples/sdd/project/src/filter.mjs` después de revisar las especificaciones. Ejecutar `node --test examples/sdd/project/tests/filter.test.mjs` (4 pruebas). Sólo entonces marcar las tres tareas conservando su redacción y ejecutar `sdd:run -- verify --approved <digest>`. Los tests del harness prueban el ejercicio resuelto en una copia temporal. No se reemplaza el starter en el snapshot.
