@@ -1,3 +1,15 @@
+## v1.0.0 — Módulo 4 · Lección 4 (global 20)
+
+- Cierre del programa de 20 lecciones; se entrega v1.0.0 **como laboratorio instalable, no certificado para producción**.
+- CLI unificado con subcomandos `workflow`, `team`, `rpc`, `sdd`, `evidence verify`, `telemetry`, `readiness`, preservando la lógica de los ejecutables anteriores.
+- Versión de la ayuda y `--version` sincronizados con `package.json` en el nuevo binario `src/lab-cli.ts` (CLI interno anterior intacto).
+- Telemetría agregada (`src/telemetry.ts`) con presupuesto de archivo y sin emitir contenido del prompt, rutas ni tool names.
+- Comprobación `readiness` de Node y ejecutable; `productionVerified=false` explícito.
+- `npm pack` restringido mediante `files`, `private:true`, `UNLICENSED`, `prepack` y smoke de instalación offline en una carpeta temporal.
+- CI declarada para Linux, Windows y macOS con Node 22.19.0, pendiente de ejecución remota.
+- Guías `docs/RELEASE_READINESS.md` y `docs/SECURITY.md`. Tests de regresión y ejercicio US-LAB-020 separados.
+- Sin modificar `src/cli.ts`, `src/runtime.ts`, `src/rpc-client.ts`, `src/sdk-runner.ts`, herramientas existentes ni los fixes de Windows.
+
 ## v0.19.0 — Módulo 4 · Lección 3 (global 19) — Subagentes
 
 - Orquestador optativo `team:run`: plan offline, simulate y live RPC. Tres especialistas, fan-in con revisor, concurrencia 1–2, cancelación, validación de informes y hashes.

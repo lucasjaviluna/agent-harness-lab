@@ -1,3 +1,18 @@
+# Agent Harness Lab — v1.0.0 · Curso completo de 20 lecciones
+
+**Módulo 4 · Lección 4 (global 20): Testing, observabilidad, seguridad y distribución.**
+**Nivel:** Avanzado · **Complejidad:** Muy alta.
+
+- [Lección final](LECCION_20.md) · [Preparación de release](docs/RELEASE_READINESS.md) · [Seguridad](docs/SECURITY.md).
+- Entradas de un único ejecutable: `agent-lab --version`, `agent-lab workflow --mode plan "..."`, `agent-lab team --mode plan "..."`, `agent-lab telemetry events.jsonl`, `agent-lab readiness`.
+- `npm run release:verify` ejecuta typecheck, tests y empaquetado + instalación offline. No publica el paquete ni consume tokens.
+- `npm pack` genera un paquete mínimo para instalación local mediante `npm install -g ./agent-harness-lab-1.0.0.tgz`. `private:true`, `UNLICENSED` por defecto.
+- La telemetría no vuelca prompts ni argumentos. Los archivos de entrada sí pueden contener información sensible.
+- **v1.0.0 = cierre educativo del laboratorio, NO versión certificada para producción.** Validaciones autenticadas, seguridad OS, Windows/macOS y supply chain pendientes.
+- Ejercicio US-LAB-020: Quality Gate de telemetría; solución separada en `solutions/modulo-04-leccion-04/`.
+
+---
+
 # Agent Harness Lab — v0.17.0
 
 **Módulo 4 · Lección 1 (global 17): Governance, aprobaciones, auditoría y evidencia** — Avanzado, complejidad muy alta.

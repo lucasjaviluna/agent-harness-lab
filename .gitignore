@@ -15,3 +15,8 @@ sesiones-locales/
 
 # Evidencias locales: incluyen artefactos potencialmente sensibles
 .lab-evidence/
+
+# Archivos de salida de empaquetado / cobertura
+*.tgz
+.lab-release/
+coverage/

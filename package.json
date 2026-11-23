@@ -1,11 +1,11 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.19.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: subagentes, concurrencia y aislamiento",
+  "description": "Agent Harness Lab: curso completo de 20 lecciones sobre Pi, orquestación y verificación de software",
   "bin": {
-    "agent-lab": "./dist/cli.js"
+    "agent-lab": "./dist/lab-cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -20,7 +20,13 @@
     "workflow:run": "npm run build --silent && node dist/workflow-cli.js",
     "evidence:verify": "npm run build --silent && node dist/evidence-cli.js",
     "sdd:run": "npm run build --silent && node dist/sdd-cli.js",
-    "team:run": "npm run build --silent && node dist/multi-agent-cli.js"
+    "team:run": "npm run build --silent && node dist/multi-agent-cli.js",
+    "prepack": "npm run build",
+    "test:coverage": "npm run build && node --experimental-test-coverage --test tests/*.test.mjs",
+    "telemetry": "npm run build --silent && node dist/telemetry-cli.js",
+    "readiness": "npm run build --silent && node dist/readiness-cli.js",
+    "release:smoke": "node scripts/release-smoke.mjs",
+    "release:verify": "npm run typecheck && npm test && npm run release:smoke"
   },
   "engines": {
     "node": ">=22.19.0"
@@ -28,5 +34,12 @@
   "devDependencies": {
     "@types/node": "^22.15.0",
     "typescript": "^5.8.3"
-  }
+  },
+  "license": "UNLICENSED",
+  "files": [
+    "dist/",
+    "README.md",
+    "docs/RELEASE_READINESS.md",
+    "docs/SECURITY.md"
+  ]
 }
