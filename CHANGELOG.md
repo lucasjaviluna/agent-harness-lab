@@ -1,3 +1,10 @@
+## v0.19.0 — Módulo 4 · Lección 3 (global 19) — Subagentes
+
+- Orquestador optativo `team:run`: plan offline, simulate y live RPC. Tres especialistas, fan-in con revisor, concurrencia 1–2, cancelación, validación de informes y hashes.
+- Sesión y proceso por rol, sin herramientas ni MCP/discovery; el modelo no modifica código ni aprueba operaciones. No se sustituye el workflow gobernado ni se persiste evidencia automáticamente.
+- 22 tests nuevos; 287 superados y 1 omitido. US-LAB-019: especialista de riesgos sólo para historias complejas, solución separada con 4 pruebas adicionales.
+- Snapshot 0.18.0, remoto consultado 0.18.0. Launcher Windows, CLI, SDK, RPC, memoria y SDD anteriores intactos. Node 22.16 (mínimo 22.19); Pi real y Windows pendientes. Worktrees manuales; sin aislamiento OS.
+
 ## v0.17.0 — Módulo 4 · Lección 1 (global 17) — Governance
 
 - Política `proposal-only`, aprobaciones correlacionadas a UUID y digest SHA-256, gate final obligatorio en modo gobernado.

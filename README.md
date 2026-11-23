@@ -325,3 +325,14 @@ Clasificación determinista y escalamiento opcional, tres rutas, etapas, gates y
 ## Lección 18 — SDD y OpenSpec (v0.18.0)
 
 Ver [LECCION_18.md](LECCION_18.md). `npm run sdd:run -- route examples/workflows/complex.json` recomienda SDD. `review`, `instructions` y `verify --approved <digest>` trabajan con el ejemplo local; Apply y Archive son manuales. Requieren OpenSpec instalado. El starter falla sus pruebas de producto intencionalmente.
+
+## Lección 19 — Subagentes y concurrencia (v0.19.0)
+
+Ver [LECCION_19.md](LECCION_19.md) y [examples/multi-agent/README.md](examples/multi-agent/README.md).
+
+```bash
+npm run team:run -- --story examples/workflows/complex.json
+npm run team:run -- --story examples/workflows/complex.json --mode simulate --concurrency 2
+```
+
+Fan-out de tres especialistas y fan-in con revisor, pool máximo 2, cancelación y sesiones RPC independientes. `live` requiere Pi autenticado, sin herramientas, MCP ni discovery. No modifica código, no ejecuta pruebas de producto, ni escribe memoria o evidencia persistente. Los informes son propuestas. No es sandbox. Worktrees son una práctica manual separada. Ejercicio US-LAB-019 en `solutions/modulo-04-leccion-03/`.

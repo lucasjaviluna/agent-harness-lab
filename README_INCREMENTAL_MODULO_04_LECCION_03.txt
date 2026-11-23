@@ -1,0 +1,2 @@
+Lección 19 — v0.18.0 → v0.19.0
+Aplicar el patch sobre la base anterior; usar git apply --check antes. El ZIP incremental contiene archivos completos nuevos o modificados. Preservar los cambios propios, el lockfile y los datos de memoria del repositorio. Ejecutar npm install, npm test y npm run typecheck. Modo plan/simulate offline; live usa Pi autenticado, sin herramientas. Ver LECCION_19.md. La solución US-LAB-019 se aplica manualmente en una rama separada.

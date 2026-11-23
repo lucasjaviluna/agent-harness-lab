@@ -1,9 +1,9 @@
 {
   "name": "agent-harness-lab",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "private": true,
   "type": "module",
-  "description": "Laboratorio incremental: SDD y validación OpenSpec",
+  "description": "Laboratorio incremental: subagentes, concurrencia y aislamiento",
   "bin": {
     "agent-lab": "./dist/cli.js"
   },
@@ -19,7 +19,8 @@
     "memory:search": "node examples/memory/search.mjs",
     "workflow:run": "npm run build --silent && node dist/workflow-cli.js",
     "evidence:verify": "npm run build --silent && node dist/evidence-cli.js",
-    "sdd:run": "npm run build --silent && node dist/sdd-cli.js"
+    "sdd:run": "npm run build --silent && node dist/sdd-cli.js",
+    "team:run": "npm run build --silent && node dist/multi-agent-cli.js"
   },
   "engines": {
     "node": ">=22.19.0"

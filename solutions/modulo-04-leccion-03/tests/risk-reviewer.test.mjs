@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {agentPlan,runTeam} from '../dist/multi-agent.js';
+const story={id:'RISK',description:'Cambiar textos',scope:'localized',acceptanceCriteria:['Texto correcto'],risks:{security:false,dataMigration:false,breakingChange:false,crossRepo:false}};
+const complex={...story,risks:{...story.risks,security:true}};
+const reply=text=>({text,events:0,tools:0,toolErrors:0});
+test('no agrega especialista de riesgo en tareas simples ni medias',()=>{for(const s of [story,{...story,scope:'feature'}])assert.ok(!agentPlan(s).some(a=>a.role==='risk-reviewer'));});
+test('complex agrega especialista y dependencia en fan-in',()=>{const plan=agentPlan(complex);assert.equal(plan.length,5);assert.equal(plan.at(-2).role,'risk-reviewer');assert.ok(plan.at(-1).dependsOn.includes('risk-reviewer'));});
+test('resultado del especialista llega al revisor sin exceder concurrencia',async()=>{let text;const r=await runTeam(complex,{concurrency:2,execute:async(a,p)=>{if(a.role==='reviewer')text=p;return reply('Informe '+a.role);}});assert.equal(r.status,'completed');assert.ok(r.peakConcurrency<=2);assert.ok(text.includes('Informe risk-reviewer'));});
+test('error de especialista de riesgo impide fan-in',async()=>{const r=await runTeam(complex,{concurrency:1,execute:async(a)=>{if(a.role==='risk-reviewer')throw Error();return reply(a.role);}});assert.equal(r.status,'failed');assert.equal(r.agents.at(-1).status,'skipped');});
